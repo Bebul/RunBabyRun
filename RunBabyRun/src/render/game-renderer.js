@@ -40,17 +40,52 @@ export function drawGame(context, data, state) {
   drawMaze(context, data, state.maze, state.zone.wallSpriteId);
   for (const enemy of state.enemies) drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed);
   drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, state.microStep, false);
-
-  context.fillStyle = '#000000bb';
-  context.fillRect(0, 0, 320, 15);
-  context.font = 'bold 8px monospace';
-  context.textBaseline = 'top';
-  context.fillStyle = COLORS.white;
-  context.fillText(`ZÓNA ${String(state.zoneNumber).padStart(3, '0')}`, 6, 4);
-  context.fillStyle = COLORS.yellow;
-  context.fillText(`ŽIVOTY ${'▮'.repeat(state.lives)}`, 214, 4);
+  drawHud(context, data, state);
 
   if (state.mode !== 'running') drawOverlay(context, state);
+}
+
+const HUD_SPRITES = {
+  lives: 'sprite-12-numlives',
+  emptyLives: 'sprite-16-nozivot',
+  life: 'sprite-17-zivutek',
+  zone: 'sprite-11-richzon',
+};
+
+const DIGITS = {
+  0: [0x3c, 0x66, 0x6e, 0x76, 0x66, 0x66, 0x3c, 0x00],
+  1: [0x18, 0x38, 0x18, 0x18, 0x18, 0x18, 0x7e, 0x00],
+  2: [0x3c, 0x66, 0x06, 0x0c, 0x30, 0x60, 0x7e, 0x00],
+  3: [0x3c, 0x66, 0x06, 0x1c, 0x06, 0x66, 0x3c, 0x00],
+  4: [0x0c, 0x1c, 0x3c, 0x6c, 0x7e, 0x0c, 0x0c, 0x00],
+  5: [0x7e, 0x60, 0x7c, 0x06, 0x06, 0x66, 0x3c, 0x00],
+  6: [0x1c, 0x30, 0x60, 0x7c, 0x66, 0x66, 0x3c, 0x00],
+  7: [0x7e, 0x66, 0x06, 0x0c, 0x18, 0x18, 0x18, 0x00],
+  8: [0x3c, 0x66, 0x66, 0x3c, 0x66, 0x66, 0x3c, 0x00],
+  9: [0x3c, 0x66, 0x66, 0x3e, 0x06, 0x0c, 0x38, 0x00],
+};
+
+export function drawHud(context, data, state) {
+  // Original mode 13h framebuffer offsets from ATEST.ASM converted to x/y.
+  drawSprite(context, data, HUD_SPRITES.lives, 2, 1);
+  drawSprite(context, data, HUD_SPRITES.emptyLives, 27, 22);
+  for (let index = 0; index < state.lives; index += 1) {
+    drawSprite(context, data, HUD_SPRITES.life, 27 + index * 4, 22);
+  }
+  drawSprite(context, data, HUD_SPRITES.zone, 265, 1);
+  drawBitmapNumber(context, state.zoneNumber, 294, 15);
+}
+
+function drawBitmapNumber(context, value, x, y) {
+  context.fillStyle = COLORS.white;
+  const text = String(value).padStart(3, '0').slice(-3);
+  for (const [characterIndex, character] of [...text].entries()) {
+    DIGITS[character].forEach((row, rowIndex) => {
+      for (let bit = 0; bit < 8; bit += 1) {
+        if (row & (0x80 >> bit)) context.fillRect(x + characterIndex * 8 + bit, y + rowIndex, 1, 1);
+      }
+    });
+  }
 }
 
 function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck) {

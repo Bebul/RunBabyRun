@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeMaze, encodeMaze, parsePascalLoads, parseZones } from './extract-assets.mjs';
+import { createVgaPalette, decodeMaze, encodeMaze, parsePascalLoads, parseZones } from './extract-assets.mjs';
 
 describe('original data extraction', () => {
   it('ignores commented Pascal asset loads', () => {
@@ -22,5 +22,15 @@ describe('original data extraction', () => {
     expect(zones).toHaveLength(42);
     expect(zones[0]).toMatchObject({ mazeIndex: 3, wallSpriteIndex: 21, enemyCount: 8, speedTicks: 13 });
     expect(zones[41]).toMatchObject({ mazeIndex: 42, enemyCount: 5 });
+  });
+
+  it('reproduces the BIOS mode 13h palette used by indexed sprites', () => {
+    const palette = createVgaPalette();
+    expect(palette).toHaveLength(256);
+    expect(palette[31]).toEqual([255, 255, 255]);
+    expect(palette[32]).toEqual([0, 0, 255]);
+    expect(palette[48]).toEqual([0, 255, 0]);
+    expect(palette[89]).toEqual([255, 198, 182]);
+    expect(palette[114]).toEqual([113, 57, 0]);
   });
 });

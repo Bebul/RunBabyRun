@@ -18,12 +18,32 @@ const EGA16 = [
 
 export function createVgaPalette() {
   const palette = EGA16.map(hexToRgb);
-  for (let i = 0; i < 16; i += 1) {
-    const value = Math.round((i / 15) * 255);
-    palette.push([value, value, value]);
+  const fromDac = (value) => Math.round((value / 63) * 255);
+  const addDacColor = (red, green, blue) => palette.push([red, green, blue].map(fromDac));
+
+  // BIOS mode 13h does not use a regular RGB cube. The original game changes
+  // only entries 0-15, leaving the VGA BIOS palette below in entries 16-247.
+  for (const value of [0, 5, 8, 11, 14, 17, 20, 24, 28, 32, 36, 40, 45, 50, 56, 63]) {
+    addDacColor(value, value, value);
   }
-  const levels = [0, 51, 102, 153, 204, 255];
-  for (const red of levels) for (const green of levels) for (const blue of levels) palette.push([red, green, blue]);
+  const rings = [
+    [0, 16, 31, 47, 63], [31, 39, 47, 55, 63], [45, 49, 54, 58, 63],
+    [0, 7, 14, 21, 28], [14, 17, 21, 24, 28], [20, 22, 24, 26, 28],
+    [0, 4, 8, 12, 16], [8, 10, 12, 14, 16], [11, 12, 13, 15, 16],
+  ];
+  for (const [low, step1, step2, step3, high] of rings) {
+    const rising = [low, step1, step2, step3, high];
+    const falling = [step3, step2, step1];
+    const colors = [
+      ...rising.map((red) => [red, low, high]),
+      ...falling.map((blue) => [high, low, blue]),
+      ...rising.map((green) => [high, green, low]),
+      ...falling.map((red) => [red, high, low]),
+      ...rising.map((blue) => [low, high, blue]),
+      ...falling.map((green) => [low, green, high]),
+    ];
+    for (const color of colors) addDacColor(...color);
+  }
   while (palette.length < 256) palette.push([0, 0, 0]);
   return palette;
 }
