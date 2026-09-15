@@ -50,20 +50,26 @@ export async function renderDiagnostics(app) {
       cellTick: state.cellTick,
       microStep: state.microStep,
       pendingTurn: state.pendingTurn,
+      playerCommand: state.playerCommand,
       blocked: state.blocked,
       lastEvent: state.lastEvent,
       lives: state.lives,
       player: state.player,
-      enemies: state.enemies.map(({ id, head, tail, direction, routeCursor, crashed }) => ({ id, head, tail, direction, routeCursor, crashed })),
+      enemies: state.enemies.map(({ id, head, tail, direction, renderPosition, phase, command, routeCursor, crashed }) => ({ id, head, tail, direction, renderPosition, phase, command, routeCursor, crashed })),
+      routeWriteCursor: state.routeWriteCursor,
+      recordedBatches: state.recordedBatches,
       recordedRoute: state.playerRoute,
     }, null, 2);
   }
 
   function drawVehicle(entity, color) {
+    const { x, y } = entity.renderPosition;
+    const direction = entity.displayDirection;
+    const horizontal = direction === 'left' || direction === 'right';
     context.fillStyle = color;
-    for (const cell of [entity.head, entity.tail]) context.fillRect(cell.x * 8 + 1, cell.y * 8 + 1, 6, 6);
+    context.fillRect(x + 1, y + 1, horizontal ? 14 : 6, horizontal ? 6 : 14);
     context.strokeStyle = '#000';
-    context.strokeRect(entity.head.x * 8 + 2, entity.head.y * 8 + 2, 3, 3);
+    context.strokeRect(x + 2 + (direction === 'right' ? 8 : 0), y + 2 + (direction === 'down' ? 8 : 0), 3, 3);
   }
 
   app.querySelector('#toggle-run').addEventListener('click', (event) => {

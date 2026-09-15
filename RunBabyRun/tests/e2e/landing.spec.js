@@ -23,6 +23,29 @@ test('diagnostics can advance exactly one microtick', async ({ page }) => {
   await expect(page.locator('#diagnostic-state')).toContainText('"microStep": 1');
 });
 
+test('diagnostics animates the queue and releases the front car onto the recorded route', async ({ page }, testInfo) => {
+  await page.goto('/#/diagnostics');
+  await expect(page.locator('#diagnostic-state')).toContainText('"tick": 0');
+  const advance = async (count) => {
+    await page.evaluate((ticks) => {
+      for (let i = 0; i < ticks; i += 1) document.querySelector('#step-once').click();
+    }, count);
+    return JSON.parse(await page.locator('#diagnostic-state').textContent());
+  };
+  let state = await advance(160);
+  expect(state.enemies[7].renderPosition).toEqual({ x: 88, y: 184 });
+  state = await advance(1);
+  expect(state.enemies[7].renderPosition).toEqual({ x: 87, y: 184 });
+  expect(state.enemies[6].renderPosition).toEqual({ x: 103, y: 184 });
+  state = await advance(15 + 8 * 8 + 8);
+  expect(state.enemies[7].head).toEqual({ x: 1, y: 22 });
+  expect(state.enemies[7].routeCursor).toBe(326);
+  expect(state.enemies[6].renderPosition).toEqual({ x: 88, y: 184 });
+  state = await advance(8);
+  expect(state.enemies[7].head).toEqual({ x: 1, y: 21 });
+  await page.locator('#diagnostic-canvas').screenshot({ path: testInfo.outputPath('pursuit.png') });
+});
+
 test('campaign starts from the keyboard and returns to menu', async ({ page }) => {
   await page.goto('/#/play');
   const canvas = page.locator('#game-canvas');

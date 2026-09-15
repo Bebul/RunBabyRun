@@ -1,5 +1,3 @@
-import { DIRECTIONS } from '../game/engine.js';
-
 export const COLORS = {
   // The original mode 13h screen clears unused track cells to palette index 0.
   background: '#000000',
@@ -41,37 +39,13 @@ export function drawSprite(context, data, spriteId, x, y, transform = 'none') {
 
 export function drawGame(context, data, state) {
   drawMaze(context, data, state.maze, state.zone.wallSpriteId);
-  if (state.mode === 'ready') {
-    drawStartingGrid(context, data, state);
-  } else {
-    for (const enemy of state.enemies) {
-      drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed, canAdvance(state.maze, enemy));
-    }
+  for (const enemy of state.enemies) {
+    drawVehicleSprite(context, data, enemy, enemy.spriteId, enemy.crashed);
   }
-  drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, state.microStep, false, canAdvance(state.maze, state.player));
+  drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, false);
   drawHud(context, data, state);
 
   if (state.mode !== 'running' && state.mode !== 'ready') drawOverlay(context, state);
-}
-
-function drawStartingGrid(context, data, state) {
-  // ATEST.ASM: putformule starts at framebuffer offset 58880 + 88
-  // (x 88, y 184) and advances 16 pixels for every enemy.  These are a
-  // display-only formation: after S is pressed the original game places all
-  // opponents at the shared start cell and releases them according to offset.
-  state.enemies.forEach((enemy, index) => {
-    const spriteId = state.enemies[state.enemies.length - 1 - index].spriteId;
-    const x = 11 + index * 2;
-    const formationVehicle = {
-      ...enemy,
-      head: { x, y: 23 },
-      tail: { x: x + 1, y: 23 },
-      // invertyl in the DOS renderer is a clockwise canvas rotation.  With
-      // the source sprites this is the pose that visibly points left.
-      direction: 'right',
-    };
-    drawVehicleSprite(context, data, formationVehicle, spriteId, 0, false);
-  });
 }
 
 const HUD_SPRITES = {
@@ -117,33 +91,21 @@ function drawBitmapNumber(context, value, x, y) {
   }
 }
 
-function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck, canAdvance = true) {
-  const horizontal = entity.direction === 'left' || entity.direction === 'right';
-  let x = Math.min(entity.head.x, entity.tail.x) * 8;
-  let y = Math.min(entity.head.y, entity.tail.y) * 8;
-  if (!wreck && microStep && !entity.crashed && canAdvance) {
-    const direction = entity.direction;
-    if (direction === 'left') x -= microStep;
-    if (direction === 'right') x += microStep;
-    if (direction === 'up') y -= microStep;
-    if (direction === 'down') y += microStep;
-  }
+function drawVehicleSprite(context, data, entity, spriteId, wreck) {
+  const displayDirection = entity.displayDirection ?? entity.direction;
+  const horizontal = displayDirection === 'left' || displayDirection === 'right';
+  // Only the simulation knows whether this microtick moves, turns or waits.
+  // Never extrapolate from microStep: that draws stopped cars inside walls.
+  const x = entity.renderPosition?.x ?? Math.min(entity.head.x, entity.tail.x) * 8;
+  const y = entity.renderPosition?.y ?? Math.min(entity.head.y, entity.tail.y) * 8;
   if (wreck) {
     context.fillStyle = COLORS.wreck;
     context.fillRect(x + 1, y + 1, horizontal ? 14 : 6, horizontal ? 6 : 14);
     context.fillStyle = '#555555';
     context.fillRect(x + 4, y + 3, horizontal ? 8 : 2, horizontal ? 2 : 8);
   } else {
-    drawSprite(context, data, spriteId, x, y, entity.direction);
+    drawSprite(context, data, spriteId, x, y, displayDirection);
   }
-}
-
-function canAdvance(maze, entity) {
-  const direction = DIRECTIONS[entity.direction];
-  const target = { x: entity.head.x + direction.x, y: entity.head.y + direction.y };
-  return target.y >= 0 && target.y < maze.height
-    && target.x >= 0 && target.x < maze.width
-    && maze.rows[target.y][target.x] !== '#';
 }
 
 const PIXEL_GLYPHS = {

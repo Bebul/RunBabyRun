@@ -56,8 +56,8 @@ describe('ready screen', () => {
       zone: { wallSpriteId: 'wall', playerSpriteId: 'player' },
       player: { head: { x: 1, y: 22 }, tail: { x: 1, y: 23 }, direction: 'up' },
       enemies: [
-        { spriteId: 'enemy-1', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, direction: 'left', crashed: false },
-        { spriteId: 'enemy-2', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, direction: 'left', crashed: false },
+        { spriteId: 'enemy-1', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, renderPosition: { x: 104, y: 184 }, direction: 'left', crashed: false },
+        { spriteId: 'enemy-2', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, renderPosition: { x: 88, y: 184 }, direction: 'left', crashed: false },
       ],
     };
 
@@ -65,14 +65,14 @@ describe('ready screen', () => {
 
     expect(COLORS.background).toBe('#000000');
     expect(context.translate.mock.calls).toEqual(expect.arrayContaining([[88, 184], [104, 184]]));
-    expect(context.drawImage.mock.calls.slice(0, 2).map((call) => call[1])).toEqual([24, 16]);
-    expect(context.rotate).toHaveBeenCalledWith(Math.PI / 2);
+    expect(context.drawImage.mock.calls.slice(0, 2).map((call) => call[1])).toEqual([16, 24]);
+    expect(context.rotate).toHaveBeenCalledWith(-Math.PI / 2);
     expect(context.strokeRect).not.toHaveBeenCalled();
   });
 });
 
 describe('stopping at walls', () => {
-  it('keeps a vehicle fully before a wall instead of interpolating it into the wall', () => {
+  it('does not extrapolate a stopped sprite into a wall from the microtick counter', () => {
     const context = {
       save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), drawImage: vi.fn(), restore: vi.fn(),
       fillRect: vi.fn(), strokeRect: vi.fn(), fillStyle: '', imageSmoothingEnabled: true,

@@ -176,3 +176,11 @@ Při budoucí změně simulace použij konkrétní průběhy odvozené z origin�
 - Přetočení 700bajtové historie bez nového startovního čekání; okraje komprese ověřit odděleně.
 
 Pro obtížně odvoditelné případy (komprese při přetočení kruhu, otočení v úzké zdi, překryv logického a vykreslovacího stavu, zbytky paměti po restartu) pořiď trasování originálu nebo přesný překlad relevantních větví. Nevyplňuj mezery intuitivním chováním moderní hry.
+
+## 11. Reprezentace v opraveném webovém jádře
+
+`src/game/engine.js` používá číselné příkazy originálu, 700 položek `playerRoute`, zapisovací `routeWriteCursor` a samostatné `routeCursor` soupeřů. `head`/`tail` jsou logické buňky aktualizované před animací; `renderPosition` je skutečný pixelový roh obrázku a `displayDirection` jeho orientace. Renderer nesmí k této poloze znovu přičítat `microStep` ani odvozovat pohyb stojícího vozu jen z jeho směru. Čekající fronta má sdílené logické souřadnice a odlišné obrazové pozice.
+
+Testy jádra ověřují jednotlivé mikrokroky, bezpečný obrat v úzké chodbě, startovní offsety, samostatné přehrávání a kompresi stání, přetočení historie a asymetrické srážky. Kontrola půdorysu hráče používá všech 42 skutečných map; prohlížečový test krokováním diagnostiky ověřuje výjezd a napojení na historii.
+
+Bezpečnostní vymezení portu: komprese se zastaví na konci 700bajtové historie, nepokračuje do sousední paměti. Nová hra inicializuje historii a obsazenost deterministicky, nereprodukuje zbytky paměti DOS procesu. Tyto ochrany nejsou důkazem shody neověřených paměťových okrajů originálu. Přesné časování opakování držené klávesy z DOS přerušení zůstává samostatným tématem; ovládání webu zatím předává události klávesnice.

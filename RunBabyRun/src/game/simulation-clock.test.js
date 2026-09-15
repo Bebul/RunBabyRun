@@ -21,7 +21,7 @@ describe('simulation clock', () => {
     const started = step(waited.state, { start: true });
     const firstFrame = advanceSimulation(started, { accumulator: waited.accumulator, elapsed: 0, interval: 10 }, step);
 
-    expect(firstFrame.state.player).toMatchObject({ head: { x: 5, y: 5 }, tail: { x: 5, y: 6 } });
+    expect(firstFrame.state.player).toMatchObject({ head: { x: 5, y: 4 }, tail: { x: 5, y: 5 }, renderPosition: { x: 40, y: 39 } });
     expect(firstFrame.state.microStep).toBe(1);
   });
 });
