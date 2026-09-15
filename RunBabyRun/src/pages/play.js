@@ -71,12 +71,10 @@ export async function renderPlay(app, options = {}) {
 
   function advanceAfterTransition() {
     transitionAt = 0;
-    if (state.mode === 'crashed') {
-      state = createGame(data, { zoneNumber: state.zoneNumber, lives: state.lives, practice: state.practice });
-    } else if (state.mode === 'won') {
+    if (state.mode === 'crashed' || state.mode === 'won') {
       if (state.practice) state = createGame(data, { zoneNumber: state.zoneNumber, lives: 7, practice: true });
       else {
-        completedZones += 1;
+        if (state.mode === 'won') completedZones += 1;
         if (state.zoneNumber < 42) state = createGame(data, { zoneNumber: state.zoneNumber + 1, lives: state.lives });
         else {
           state = { ...state, mode: 'campaign-complete', lastEvent: 'campaign-complete' };

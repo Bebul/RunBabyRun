@@ -173,7 +173,7 @@ function drawOverlay(context, state) {
   const title = { ready: `ZÓNA ${state.zoneNumber}`, crashed: 'HAVÁRIE', won: 'ZÓNA HOTOVA', 'game-over': 'KONEC HRY', 'campaign-complete': 'VÍTĚZSTVÍ!' }[state.mode] ?? state.mode;
   drawPixelText(context, title, 160, 82);
   context.fillStyle = COLORS.white;
-  const hint = state.mode === 'ready' ? 'S NEBO ENTER PRO START' : state.mode === 'crashed' ? 'PŘIPRAVUJI NOVÝ POKUS' : '';
+  const hint = state.mode === 'ready' ? 'S NEBO ENTER PRO START' : state.mode === 'crashed' ? (state.practice ? 'PŘIPRAVUJI NOVÝ POKUS' : 'PŘIPRAVUJI DALŠÍ ZÓNU') : '';
   drawPixelText(context, hint, 160, 107);
 }
 

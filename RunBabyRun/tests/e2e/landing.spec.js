@@ -64,6 +64,18 @@ test('practice exposes all zones and launches the selected one', async ({ page }
   await expect(page.getByRole('heading', { name: 'Zóna 42' })).toBeVisible();
 });
 
+test('a campaign crash advances to the next zone with one fewer life', async ({ page }) => {
+  await page.clock.install();
+  await page.goto('/#/play');
+  const canvas = page.locator('#game-canvas');
+  await expect(canvas).toHaveAttribute('data-mode', 'ready');
+  await page.keyboard.press('Enter');
+  await page.clock.runFor(20000);
+  await expect(canvas).toHaveAttribute('data-mode', 'ready');
+  await expect(canvas).toHaveAttribute('data-zone', '2');
+  await expect(page.locator('#game-status')).toContainText('Životy6');
+});
+
 test('high scores survive a reload', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.setItem('runbabyrun.highScores.v1', JSON.stringify([{ name: 'ADA', score: 123 }])));
