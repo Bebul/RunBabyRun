@@ -83,7 +83,7 @@ function drawOverlay(context, state) {
   context.textBaseline = 'middle';
   context.font = 'bold 10px monospace';
   context.fillStyle = state.mode === 'crashed' || state.mode === 'game-over' ? COLORS.red : COLORS.yellow;
-  const title = { ready: `ZÓNA ${state.zoneNumber}`, crashed: 'HAVÁRIE', won: 'ZÓNA HOTOVA', 'game-over': 'KONEC HRY' }[state.mode] ?? state.mode;
+  const title = { ready: `ZÓNA ${state.zoneNumber}`, crashed: 'HAVÁRIE', won: 'ZÓNA HOTOVA', 'game-over': 'KONEC HRY', 'campaign-complete': 'VÍTĚZSTVÍ!' }[state.mode] ?? state.mode;
   context.fillText(title, 160, 91);
   context.font = '8px monospace';
   context.fillStyle = COLORS.white;

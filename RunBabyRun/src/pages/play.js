@@ -1,15 +1,17 @@
 import { loadGameData } from '../data/load-game-data.js';
 import { createGame, step } from '../game/engine.js';
 import { drawGame } from '../render/game-renderer.js';
+import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
 
 const PIT_HZ = 1193182 / 1300;
 const SPEEDS = { slow: 30, normal: 18, fast: 7 };
 
 export async function renderPlay(app, options = {}) {
   const data = await loadGameData();
+  const settings = loadSettings();
   app.innerHTML = `
     <section class="page play-page">
-      <div class="play-heading"><div><p class="eyebrow">Kampaň / 42 zón</p><h1>Na start!</h1></div><div class="speed-pills" aria-label="Rychlost hry"><button data-speed="slow">Pomalá</button><button data-speed="normal" class="active">Normální</button><button data-speed="fast">Rychlá</button></div></div>
+      <div class="play-heading"><div><p class="eyebrow">${options.practice ? 'Trénink' : 'Kampaň / 42 zón'}</p><h1>${options.practice ? `Zóna ${options.zoneNumber}` : 'Na start!'}</h1></div><div class="speed-pills" aria-label="Rychlost hry"><button data-speed="slow">Pomalá</button><button data-speed="normal">Normální</button><button data-speed="fast">Rychlá</button></div></div>
       <div class="play-layout">
         <div class="screen-shell game-screen"><canvas width="320" height="200" id="game-canvas" data-mode="ready" tabindex="0" aria-label="Hra Run Baby Run"></canvas></div>
         <aside class="game-help">
@@ -22,12 +24,16 @@ export async function renderPlay(app, options = {}) {
           <dl class="metadata" id="game-status"></dl>
         </aside>
       </div>
+      <section class="victory-panel" id="victory-panel" hidden><p class="eyebrow">Všech 42 zón dokončeno</p><h2>Vyhráli jste!</h2><p>Výsledek byl uložen. Můžete skončit, nebo pokračovat dalším kolem od první zóny.</p><button id="continue-campaign">Pokračovat</button> <a class="button" href="#/">Do menu</a></section>
+      <section class="victory-panel game-over-panel" id="game-over-panel" hidden><p class="eyebrow">Jízda skončila</p><h2>Konec hry</h2><p>Výsledek je uložený v místní tabulce rekordů.</p><a class="button primary" href="#/play">Nová hra</a> <a class="button" href="#/scores">Rekordy</a> <a class="button" href="#/">Do menu</a></section>
     </section>`;
 
   const canvas = app.querySelector('#game-canvas');
   const context = canvas.getContext('2d');
-  let speed = options.speed ?? 'normal';
+  let speed = options.speed ?? settings.speed;
   let state = createGame(data, { zoneNumber: options.zoneNumber ?? 1, practice: options.practice ?? false });
+  let completedZones = options.completedZones ?? 0;
+  let scoreSaved = false;
   let pendingInput = {};
   let accumulator = 0;
   let previousTime = performance.now();
@@ -48,6 +54,10 @@ export async function renderPlay(app, options = {}) {
       }
     }
     if ((state.mode === 'crashed' || state.mode === 'won') && !transitionAt) transitionAt = now + 850;
+    if (state.mode === 'game-over' && !scoreSaved && !state.practice) {
+      persistScore();
+      app.querySelector('#game-over-panel').hidden = false;
+    }
     if (transitionAt && now >= transitionAt) advanceAfterTransition();
     drawGame(context, data, state);
     updateStatus();
@@ -65,8 +75,15 @@ export async function renderPlay(app, options = {}) {
       state = createGame(data, { zoneNumber: state.zoneNumber, lives: state.lives, practice: state.practice });
     } else if (state.mode === 'won') {
       if (state.practice) state = createGame(data, { zoneNumber: state.zoneNumber, lives: 7, practice: true });
-      else if (state.zoneNumber < 42) state = createGame(data, { zoneNumber: state.zoneNumber + 1, lives: state.lives });
-      else state = { ...state, mode: 'campaign-complete', lastEvent: 'campaign-complete' };
+      else {
+        completedZones += 1;
+        if (state.zoneNumber < 42) state = createGame(data, { zoneNumber: state.zoneNumber + 1, lives: state.lives });
+        else {
+          state = { ...state, mode: 'campaign-complete', lastEvent: 'campaign-complete' };
+          persistScore();
+          app.querySelector('#victory-panel').hidden = false;
+        }
+      }
     }
   }
 
@@ -77,7 +94,13 @@ export async function renderPlay(app, options = {}) {
       <div><dt>Stav</dt><dd>${state.mode}</dd></div>
       <div><dt>Zóna</dt><dd>${state.zoneNumber} / 42</dd></div>
       <div><dt>Životy</dt><dd>${state.lives}</dd></div>
-      <div><dt>Soupeři</dt><dd>${state.enemies.filter((enemy) => !enemy.crashed).length}</dd></div>`;
+      <div><dt>Soupeři</dt><dd>${state.enemies.filter((enemy) => !enemy.crashed).length}</dd></div>
+      <div><dt>Skóre</dt><dd>${completedZones}</dd></div>`;
+  }
+
+  function persistScore() {
+    saveScore({ name: settings.name, score: Math.max(completedZones, state.zoneNumber) });
+    scoreSaved = true;
   }
 
   function onKeydown(event) {
@@ -91,8 +114,15 @@ export async function renderPlay(app, options = {}) {
 
   app.querySelectorAll('[data-speed]').forEach((button) => button.addEventListener('click', () => {
     speed = button.dataset.speed;
+    saveSettings({ ...settings, speed });
     app.querySelectorAll('[data-speed]').forEach((candidate) => candidate.classList.toggle('active', candidate === button));
   }));
+  app.querySelector(`[data-speed="${speed}"]`)?.classList.add('active');
+  app.querySelector('#continue-campaign').addEventListener('click', () => {
+    scoreSaved = false;
+    app.querySelector('#victory-panel').hidden = true;
+    state = createGame(data, { zoneNumber: 1, lives: state.lives });
+  });
   window.addEventListener('keydown', onKeydown);
   canvas.focus();
   drawGame(context, data, state);

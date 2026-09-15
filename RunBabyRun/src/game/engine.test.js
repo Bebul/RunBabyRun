@@ -30,6 +30,7 @@ describe('game engine', () => {
     for (let index = 1; index < 8; index += 1) state = step(state);
     expect(state.blocked).toBe(true);
     expect(state.lives).toBe(7);
+    expect(state.playerRoute).toEqual(['stop']);
     state = advanceCell(state, { turn: 'right' });
     expect(state.player.head).toEqual({ x: 2, y: 1 });
   });

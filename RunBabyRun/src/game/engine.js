@@ -79,6 +79,7 @@ export function step(previous, input = {}) {
   if (isWall(state.maze, playerTarget)) {
     state.blocked = true;
     state.lastEvent = 'wall';
+    state.playerRoute.push('stop');
   } else if (occupiedByEnemy(state.enemies, playerTarget)) {
     crashPlayer(state, 'collision');
     return state;

@@ -3,6 +3,9 @@ import { renderGallery } from './pages/gallery.js';
 import { renderHome } from './pages/home.js';
 import { renderDiagnostics } from './pages/diagnostics.js';
 import { renderPlay } from './pages/play.js';
+import { renderPractice } from './pages/practice.js';
+import { renderScores } from './pages/scores.js';
+import { renderHelp } from './pages/help.js';
 
 const app = document.querySelector('#app');
 
@@ -29,6 +32,10 @@ async function renderRoute() {
     if (path === '/gallery') await renderGallery(route);
     else if (path === '/diagnostics') disposeRoute = await renderDiagnostics(route);
     else if (path === '/play') disposeRoute = await renderPlay(route);
+    else if (path === '/practice') await renderPractice(route);
+    else if (/^\/practice\/\d+$/.test(path)) disposeRoute = await renderPlay(route, { practice: true, zoneNumber: Number(path.split('/').at(-1)) });
+    else if (path === '/scores') renderScores(route);
+    else if (path === '/help') renderHelp(route);
     else renderHome(route);
   } catch (error) {
     route.innerHTML = `<section class="error"><h1>Data se nepodařilo načíst</h1><pre>${error.message}</pre></section>`;
