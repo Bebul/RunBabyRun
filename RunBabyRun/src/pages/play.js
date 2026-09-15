@@ -36,6 +36,8 @@ export async function renderPlay(app, options = {}) {
   let completedZones = options.completedZones ?? 0;
   let scoreSaved = false;
   let pendingInput = {};
+  const heldTurnKeys = new Set();
+  const blockedTurnKeys = new Set();
   let accumulator = 0;
   let previousTime = performance.now();
   let transitionAt = 0;
@@ -71,6 +73,7 @@ export async function renderPlay(app, options = {}) {
 
   function advanceAfterTransition() {
     transitionAt = 0;
+    resetInput();
     if (state.mode === 'crashed' || state.mode === 'won') {
       if (state.practice) state = createGame(data, { zoneNumber: state.zoneNumber, lives: 7, practice: true });
       else {
@@ -104,10 +107,30 @@ export async function renderPlay(app, options = {}) {
   function onKeydown(event) {
     const key = event.key.toLowerCase();
     if (['arrowleft', 'arrowright', ' ', 'enter'].includes(key)) event.preventDefault();
-    if (['z', 'a', 'arrowleft'].includes(key)) pendingInput.turn = 'left';
-    if (['x', 'd', 'arrowright'].includes(key)) pendingInput.turn = 'right';
-    if (['s', 'enter'].includes(key) && state.mode === 'ready') state = step(state, { start: true });
+    const turn = ['z', 'a', 'arrowleft'].includes(key) ? 'left' : ['x', 'd', 'arrowright'].includes(key) ? 'right' : null;
+    if (turn) {
+      heldTurnKeys.add(key);
+      if (state.mode !== 'running') blockedTurnKeys.add(key);
+      else if (!blockedTurnKeys.has(key)) pendingInput.turn = turn;
+    }
+    if (['s', 'enter'].includes(key) && state.mode === 'ready') {
+      resetInput();
+      previousTime = performance.now();
+      state = step(state, { start: true });
+    }
     if (['r', 'escape'].includes(key)) location.hash = '/';
+  }
+
+  function resetInput() {
+    pendingInput = {};
+    accumulator = 0;
+    heldTurnKeys.forEach((key) => blockedTurnKeys.add(key));
+  }
+
+  function onKeyup(event) {
+    const key = event.key.toLowerCase();
+    heldTurnKeys.delete(key);
+    blockedTurnKeys.delete(key);
   }
 
   app.querySelectorAll('[data-speed]').forEach((button) => button.addEventListener('click', () => {
@@ -119,9 +142,11 @@ export async function renderPlay(app, options = {}) {
   app.querySelector('#continue-campaign').addEventListener('click', () => {
     scoreSaved = false;
     app.querySelector('#victory-panel').hidden = true;
+    resetInput();
     state = createGame(data, { zoneNumber: 1, lives: state.lives });
   });
   window.addEventListener('keydown', onKeydown);
+  window.addEventListener('keyup', onKeyup);
   canvas.focus();
   drawGame(context, data, state);
   updateStatus();
@@ -130,5 +155,6 @@ export async function renderPlay(app, options = {}) {
     disposed = true;
     cancelAnimationFrame(animationFrame);
     window.removeEventListener('keydown', onKeydown);
+    window.removeEventListener('keyup', onKeyup);
   };
 }
