@@ -1,6 +1,7 @@
 export const COLORS = {
-  background: '#0000aa',
-  empty: '#0000aa',
+  // The original mode 13h screen clears unused track cells to palette index 0.
+  background: '#000000',
+  empty: '#000000',
   white: '#ffffff',
   yellow: '#ffff55',
   cyan: '#55ffff',
@@ -38,11 +39,35 @@ export function drawSprite(context, data, spriteId, x, y, transform = 'none') {
 
 export function drawGame(context, data, state) {
   drawMaze(context, data, state.maze, state.zone.wallSpriteId);
-  for (const enemy of state.enemies) drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed);
+  if (state.mode === 'ready') {
+    drawStartingGrid(context, data, state);
+  } else {
+    for (const enemy of state.enemies) drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed);
+  }
   drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, state.microStep, false);
   drawHud(context, data, state);
 
-  if (state.mode !== 'running') drawOverlay(context, state);
+  if (state.mode !== 'running' && state.mode !== 'ready') drawOverlay(context, state);
+}
+
+function drawStartingGrid(context, data, state) {
+  // ATEST.ASM: putformule starts at framebuffer offset 58880 + 88
+  // (x 88, y 184) and advances 16 pixels for every enemy.  These are a
+  // display-only formation: after S is pressed the original game places all
+  // opponents at the shared start cell and releases them according to offset.
+  state.enemies.forEach((enemy, index) => {
+    const spriteId = state.enemies[state.enemies.length - 1 - index].spriteId;
+    const x = 11 + index * 2;
+    const formationVehicle = {
+      ...enemy,
+      head: { x, y: 23 },
+      tail: { x: x + 1, y: 23 },
+      // invertyl in the DOS renderer is a clockwise canvas rotation.  With
+      // the source sprites this is the pose that visibly points left.
+      direction: 'right',
+    };
+    drawVehicleSprite(context, data, formationVehicle, spriteId, 0, false);
+  });
 }
 
 const HUD_SPRITES = {

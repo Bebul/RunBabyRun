@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawHud, drawPixelText } from './game-renderer.js';
+import { COLORS, drawGame, drawHud, drawPixelText } from './game-renderer.js';
 
 describe('original game HUD', () => {
   it('draws both portraits, the current lives, and a three-digit zone number', () => {
@@ -39,5 +39,34 @@ describe('pixel overlay text', () => {
       expect(width).toBe(1);
       expect(height).toBe(1);
     }
+  });
+});
+
+describe('ready screen', () => {
+  it('uses black and draws the opponents in the original starting row', () => {
+    const context = {
+      save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), drawImage: vi.fn(), restore: vi.fn(),
+      fillRect: vi.fn(), strokeRect: vi.fn(), fillStyle: '', imageSmoothingEnabled: true,
+    };
+    const sprites = ['wall', 'player', 'enemy-1', 'enemy-2', 'sprite-12-numlives', 'sprite-16-nozivot', 'sprite-17-zivutek', 'sprite-11-richzon']
+      .map((id, index) => ({ id, width: 8, height: 16, atlas: { x: index * 8, y: 0, width: 8, height: 16 } }));
+    const state = {
+      mode: 'ready', microStep: 0, lives: 0, zoneNumber: 1,
+      maze: { width: 40, height: 25, rows: Array.from({ length: 25 }, () => '.'.repeat(40)) },
+      zone: { wallSpriteId: 'wall', playerSpriteId: 'player' },
+      player: { head: { x: 1, y: 22 }, tail: { x: 1, y: 23 }, direction: 'up' },
+      enemies: [
+        { spriteId: 'enemy-1', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, direction: 'left', crashed: false },
+        { spriteId: 'enemy-2', head: { x: 11, y: 23 }, tail: { x: 12, y: 23 }, direction: 'left', crashed: false },
+      ],
+    };
+
+    drawGame(context, { sprites, atlas: {} }, state);
+
+    expect(COLORS.background).toBe('#000000');
+    expect(context.translate.mock.calls).toEqual(expect.arrayContaining([[88, 184], [104, 184]]));
+    expect(context.drawImage.mock.calls.slice(0, 2).map((call) => call[1])).toEqual([24, 16]);
+    expect(context.rotate).toHaveBeenCalledWith(Math.PI / 2);
+    expect(context.strokeRect).not.toHaveBeenCalled();
   });
 });
