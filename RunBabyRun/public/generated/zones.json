@@ -1,0 +1,1036 @@
+{
+  "generated": true,
+  "formatVersion": 1,
+  "zones": [
+    {
+      "number": 1,
+      "sourceLabel": "prvnizona",
+      "mazeId": "maze-03",
+      "wallSpriteId": "sprite-21-zed9",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 13,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 2,
+      "sourceLabel": "druhazona",
+      "mazeId": "maze-07",
+      "wallSpriteId": "sprite-26-zed10",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5"
+      ],
+      "enemyCount": 2,
+      "speedTicks": 8,
+      "enemyTrackOffsets": [
+        75,
+        250
+      ]
+    },
+    {
+      "number": 3,
+      "sourceLabel": "tretizona",
+      "mazeId": "maze-02",
+      "wallSpriteId": "sprite-15-zed4",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        180,
+        240,
+        295
+      ]
+    },
+    {
+      "number": 4,
+      "sourceLabel": "ctvrtazona",
+      "mazeId": "maze-01",
+      "wallSpriteId": "sprite-14-zed3",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 18,
+      "enemyTrackOffsets": [
+        20,
+        80,
+        160,
+        260
+      ]
+    },
+    {
+      "number": 5,
+      "sourceLabel": "patazona",
+      "mazeId": "maze-04",
+      "wallSpriteId": "sprite-18-zed5",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 6,
+      "sourceLabel": "sestazona",
+      "mazeId": "maze-05",
+      "wallSpriteId": "sprite-19-zed6",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 7,
+      "sourceLabel": "sedmazona",
+      "mazeId": "maze-06",
+      "wallSpriteId": "sprite-01-zed1",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        160,
+        225,
+        275
+      ]
+    },
+    {
+      "number": 8,
+      "sourceLabel": "osmazona",
+      "mazeId": "maze-08",
+      "wallSpriteId": "sprite-25-zed8",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 8,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 9,
+      "sourceLabel": "devatazona",
+      "mazeId": "maze-09",
+      "wallSpriteId": "sprite-20-zed7",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 8,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 10,
+      "sourceLabel": "desatazona",
+      "mazeId": "maze-10",
+      "wallSpriteId": "sprite-13-zed2",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 9,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 11,
+      "sourceLabel": "jedenactazona",
+      "mazeId": "maze-11",
+      "wallSpriteId": "sprite-27-zed11",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 9,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 12,
+      "sourceLabel": "dvanactazona",
+      "mazeId": "maze-12",
+      "wallSpriteId": "sprite-28-zed12",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 9,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 13,
+      "sourceLabel": "trinactazona",
+      "mazeId": "maze-13",
+      "wallSpriteId": "sprite-29-zed13",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 9,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        205,
+        285
+      ]
+    },
+    {
+      "number": 14,
+      "sourceLabel": "ctrnactazona",
+      "mazeId": "maze-14",
+      "wallSpriteId": "sprite-30-zed14",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        120,
+        153,
+        253,
+        288
+      ]
+    },
+    {
+      "number": 15,
+      "sourceLabel": "patnactazona",
+      "mazeId": "maze-15",
+      "wallSpriteId": "sprite-30-zed14",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6"
+      ],
+      "enemyCount": 3,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        90,
+        255
+      ]
+    },
+    {
+      "number": 16,
+      "sourceLabel": "sestnactazona",
+      "mazeId": "maze-16",
+      "wallSpriteId": "sprite-31-zed15",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        20,
+        80,
+        160,
+        260
+      ]
+    },
+    {
+      "number": 17,
+      "sourceLabel": "sedmnactazona",
+      "mazeId": "maze-17",
+      "wallSpriteId": "sprite-32-zed16",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        20,
+        80,
+        160,
+        260
+      ]
+    },
+    {
+      "number": 18,
+      "sourceLabel": "osmnactazona",
+      "mazeId": "maze-18",
+      "wallSpriteId": "sprite-33-zed17",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        0,
+        41,
+        101,
+        151,
+        179,
+        213,
+        249,
+        296
+      ]
+    },
+    {
+      "number": 19,
+      "sourceLabel": "devatenactazona",
+      "mazeId": "maze-19",
+      "wallSpriteId": "sprite-34-zed18",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        90,
+        180,
+        250,
+        305
+      ]
+    },
+    {
+      "number": 20,
+      "sourceLabel": "dvacatazona",
+      "mazeId": "maze-20",
+      "wallSpriteId": "sprite-35-zed19",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9"
+      ],
+      "enemyCount": 6,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        74,
+        112,
+        157,
+        196,
+        249,
+        290
+      ]
+    },
+    {
+      "number": 21,
+      "sourceLabel": "dvacataprvni",
+      "mazeId": "maze-21",
+      "wallSpriteId": "sprite-36-zed20",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 20,
+      "enemyTrackOffsets": [
+        260,
+        265,
+        271,
+        275,
+        278,
+        281,
+        283,
+        285
+      ]
+    },
+    {
+      "number": 22,
+      "sourceLabel": "dvacatadruha",
+      "mazeId": "maze-22",
+      "wallSpriteId": "sprite-37-zed21",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        19,
+        83,
+        159,
+        257
+      ]
+    },
+    {
+      "number": 23,
+      "sourceLabel": "dvacatatreti",
+      "mazeId": "maze-23",
+      "wallSpriteId": "sprite-38-zed22",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        94,
+        98,
+        130,
+        174,
+        229,
+        270,
+        300
+      ]
+    },
+    {
+      "number": 24,
+      "sourceLabel": "dvacatactvrta",
+      "mazeId": "maze-24",
+      "wallSpriteId": "sprite-42-zed26",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9"
+      ],
+      "enemyCount": 6,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        171,
+        211,
+        243,
+        273,
+        298
+      ]
+    },
+    {
+      "number": 25,
+      "sourceLabel": "dvacatapata",
+      "mazeId": "maze-25",
+      "wallSpriteId": "sprite-40-zed24",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        101,
+        190,
+        250,
+        290
+      ]
+    },
+    {
+      "number": 26,
+      "sourceLabel": "dvacatasesta",
+      "mazeId": "maze-26",
+      "wallSpriteId": "sprite-41-zed25",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        80,
+        111,
+        139,
+        166,
+        178,
+        265,
+        290
+      ]
+    },
+    {
+      "number": 27,
+      "sourceLabel": "dvacatasedma",
+      "mazeId": "maze-27",
+      "wallSpriteId": "sprite-39-zed23",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        180,
+        240
+      ]
+    },
+    {
+      "number": 28,
+      "sourceLabel": "dvacataosma",
+      "mazeId": "maze-28",
+      "wallSpriteId": "sprite-43-zed27",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 12,
+      "enemyTrackOffsets": [
+        0,
+        60,
+        110,
+        155,
+        195,
+        220,
+        245,
+        260
+      ]
+    },
+    {
+      "number": 29,
+      "sourceLabel": "dvacatadevata",
+      "mazeId": "maze-29",
+      "wallSpriteId": "sprite-44-zed28",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9"
+      ],
+      "enemyCount": 6,
+      "speedTicks": 12,
+      "enemyTrackOffsets": [
+        0,
+        90,
+        160,
+        220,
+        245,
+        260
+      ]
+    },
+    {
+      "number": 30,
+      "sourceLabel": "tricatazona",
+      "mazeId": "maze-30",
+      "wallSpriteId": "sprite-45-zed29",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        0,
+        90,
+        170,
+        220,
+        250,
+        268,
+        275,
+        280
+      ]
+    },
+    {
+      "number": 31,
+      "sourceLabel": "tricataprvni",
+      "mazeId": "maze-31",
+      "wallSpriteId": "sprite-46-zed30",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        190,
+        235,
+        260
+      ]
+    },
+    {
+      "number": 32,
+      "sourceLabel": "tricatadruha",
+      "mazeId": "maze-32",
+      "wallSpriteId": "sprite-21-zed9",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 9,
+      "enemyTrackOffsets": [
+        20,
+        80,
+        160,
+        260,
+        295
+      ]
+    },
+    {
+      "number": 33,
+      "sourceLabel": "tricatatreti",
+      "mazeId": "maze-33",
+      "wallSpriteId": "sprite-26-zed10",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        101,
+        173,
+        261
+      ]
+    },
+    {
+      "number": 34,
+      "sourceLabel": "tricatactvrta",
+      "mazeId": "maze-34",
+      "wallSpriteId": "sprite-42-zed26",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6"
+      ],
+      "enemyCount": 3,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        0,
+        150,
+        250
+      ]
+    },
+    {
+      "number": 35,
+      "sourceLabel": "tricatapata",
+      "mazeId": "maze-35",
+      "wallSpriteId": "sprite-30-zed14",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 12,
+      "enemyTrackOffsets": [
+        60,
+        120,
+        172,
+        240
+      ]
+    },
+    {
+      "number": 36,
+      "sourceLabel": "tricatasesta",
+      "mazeId": "maze-36",
+      "wallSpriteId": "sprite-20-zed7",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9",
+        "sprite-09-formul10",
+        "sprite-10-formul11"
+      ],
+      "enemyCount": 8,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        65,
+        125,
+        175,
+        215,
+        235,
+        275,
+        295
+      ]
+    },
+    {
+      "number": 37,
+      "sourceLabel": "tricatasedma",
+      "mazeId": "maze-37",
+      "wallSpriteId": "sprite-28-zed12",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9"
+      ],
+      "enemyCount": 6,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        74,
+        112,
+        157,
+        196,
+        249,
+        290
+      ]
+    },
+    {
+      "number": 38,
+      "sourceLabel": "tricataosma",
+      "mazeId": "maze-38",
+      "wallSpriteId": "sprite-31-zed15",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8",
+        "sprite-08-formule9"
+      ],
+      "enemyCount": 6,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        0,
+        100,
+        148,
+        165,
+        230,
+        293
+      ]
+    },
+    {
+      "number": 39,
+      "sourceLabel": "tricatadevata",
+      "mazeId": "maze-39",
+      "wallSpriteId": "sprite-29-zed13",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        20,
+        80,
+        160,
+        260
+      ]
+    },
+    {
+      "number": 40,
+      "sourceLabel": "ctyricata",
+      "mazeId": "maze-40",
+      "wallSpriteId": "sprite-27-zed11",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        20,
+        235,
+        240,
+        275,
+        300
+      ]
+    },
+    {
+      "number": 41,
+      "sourceLabel": "ctyricataprvni",
+      "mazeId": "maze-41",
+      "wallSpriteId": "sprite-45-zed29",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7"
+      ],
+      "enemyCount": 4,
+      "speedTicks": 10,
+      "enemyTrackOffsets": [
+        20,
+        110,
+        160,
+        260
+      ]
+    },
+    {
+      "number": 42,
+      "sourceLabel": "ctyricatadruha",
+      "mazeId": "maze-42",
+      "wallSpriteId": "sprite-26-zed10",
+      "playerSpriteId": "sprite-02-formule2",
+      "enemySpriteIds": [
+        "sprite-03-formule3",
+        "sprite-04-formule5",
+        "sprite-05-formule6",
+        "sprite-06-formule7",
+        "sprite-07-formule8"
+      ],
+      "enemyCount": 5,
+      "speedTicks": 11,
+      "enemyTrackOffsets": [
+        20,
+        235,
+        240,
+        275,
+        300
+      ]
+    }
+  ]
+}
