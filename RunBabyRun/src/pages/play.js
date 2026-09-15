@@ -1,5 +1,6 @@
 import { loadGameData } from '../data/load-game-data.js';
 import { createGame, step } from '../game/engine.js';
+import { advanceSimulation } from '../game/simulation-clock.js';
 import { drawGame } from '../render/game-renderer.js';
 import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
 
@@ -45,13 +46,12 @@ export async function renderPlay(app, options = {}) {
     const elapsed = Math.min(100, now - previousTime);
     previousTime = now;
     if (!document.hidden && !transitionAt) {
-      accumulator += elapsed;
       const interval = tickInterval(state);
-      while (accumulator >= interval && state.mode === 'running') {
-        state = step(state, pendingInput);
-        pendingInput = {};
-        accumulator -= interval;
-      }
+      ({ state, accumulator, pendingInput } = advanceSimulation(
+        state,
+        { accumulator, elapsed, interval, pendingInput },
+        step,
+      ));
     }
     if ((state.mode === 'crashed' || state.mode === 'won') && !transitionAt) transitionAt = now + 850;
     if (state.mode === 'game-over' && !scoreSaved && !state.practice) {
