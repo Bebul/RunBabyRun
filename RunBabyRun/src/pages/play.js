@@ -6,6 +6,7 @@ import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
 
 const PIT_HZ = 1193182 / 1300;
 const SPEEDS = { slow: 30, normal: 18, fast: 7 };
+const TURN_KEYS = { z: 'left', a: 'left', arrowleft: 'left', x: 'right', d: 'right', arrowright: 'right' };
 
 export async function renderPlay(app, options = {}) {
   const data = await loadGameData();
@@ -49,9 +50,10 @@ export async function renderPlay(app, options = {}) {
     previousTime = now;
     if (!document.hidden && !transitionAt) {
       const interval = tickInterval(state);
+      const heldKey = [...heldTurnKeys].filter((key) => !blockedTurnKeys.has(key)).at(-1);
       ({ state, accumulator, pendingInput } = advanceSimulation(
         state,
-        { accumulator, elapsed, interval, pendingInput },
+        { accumulator, elapsed, interval, pendingInput, heldInput: heldKey ? { turn: TURN_KEYS[heldKey] } : {} },
         step,
       ));
     }
@@ -107,8 +109,8 @@ export async function renderPlay(app, options = {}) {
   function onKeydown(event) {
     const key = event.key.toLowerCase();
     if (['arrowleft', 'arrowright', ' ', 'enter'].includes(key)) event.preventDefault();
-    const turn = ['z', 'a', 'arrowleft'].includes(key) ? 'left' : ['x', 'd', 'arrowright'].includes(key) ? 'right' : null;
-    if (turn) {
+    const turn = TURN_KEYS[key];
+    if (turn && !event.repeat) {
       heldTurnKeys.add(key);
       if (state.mode !== 'running') blockedTurnKeys.add(key);
       else if (!blockedTurnKeys.has(key)) pendingInput.turn = turn;
@@ -133,6 +135,17 @@ export async function renderPlay(app, options = {}) {
     blockedTurnKeys.delete(key);
   }
 
+  function onBlur() {
+    resetInput();
+    heldTurnKeys.clear();
+    blockedTurnKeys.clear();
+    state.pendingTurn = null;
+  }
+
+  function onVisibilityChange() {
+    if (document.hidden) onBlur();
+  }
+
   app.querySelectorAll('[data-speed]').forEach((button) => button.addEventListener('click', () => {
     speed = button.dataset.speed;
     saveSettings({ ...settings, speed });
@@ -147,6 +160,8 @@ export async function renderPlay(app, options = {}) {
   });
   window.addEventListener('keydown', onKeydown);
   window.addEventListener('keyup', onKeyup);
+  window.addEventListener('blur', onBlur);
+  document.addEventListener('visibilitychange', onVisibilityChange);
   canvas.focus();
   drawGame(context, data, state);
   updateStatus();
@@ -156,5 +171,7 @@ export async function renderPlay(app, options = {}) {
     cancelAnimationFrame(animationFrame);
     window.removeEventListener('keydown', onKeydown);
     window.removeEventListener('keyup', onKeyup);
+    window.removeEventListener('blur', onBlur);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
   };
 }

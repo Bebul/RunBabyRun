@@ -21,3 +21,5 @@ Soubory v `public/generated` jsou generované. Neupravují se ručně.
 - `#/scores` – deset výsledků uložených v `localStorage`.
 
 Ovládání zachovává původní klávesy Z/X/S/R a přidává A/D, šipky, Enter a Escape. Hudba a zvuky nejsou v této verzi implementované.
+
+První stisk zatočí při nejbližším zpracování vstupu. Držení se čte na konci každé osmimikrokrokové dávky, takže otočky mohou navazovat na místě, nezávisle na opakování klávesnice. Opakovaná otočka se neukládá předem do bufferu: puštění klávesy před koncem dávky ji zruší. Jde o záměrnou úpravu oproti prodlevě `korektkey` v DOS verzi. Při přechodu mezi zónami je nutné drženou klávesu pustit a znovu stisknout.
