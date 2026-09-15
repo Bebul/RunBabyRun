@@ -23,13 +23,14 @@ export function drawSprite(context, data, spriteId, x, y, transform = 'none') {
   const { atlas } = sprite;
   context.save();
   context.translate(x, y);
+  // Vehicle sprites face down in the atlas; clockwise rotation points left.
   if (transform === 'up') {
     context.translate(0, sprite.height);
     context.scale(1, -1);
-  } else if (transform === 'right') {
+  } else if (transform === 'left') {
     context.translate(sprite.height, 0);
     context.rotate(Math.PI / 2);
-  } else if (transform === 'left') {
+  } else if (transform === 'right') {
     context.translate(0, sprite.width);
     context.rotate(-Math.PI / 2);
   }

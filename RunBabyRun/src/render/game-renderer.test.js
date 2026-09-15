@@ -66,7 +66,7 @@ describe('ready screen', () => {
     expect(COLORS.background).toBe('#000000');
     expect(context.translate.mock.calls).toEqual(expect.arrayContaining([[88, 184], [104, 184]]));
     expect(context.drawImage.mock.calls.slice(0, 2).map((call) => call[1])).toEqual([16, 24]);
-    expect(context.rotate).toHaveBeenCalledWith(-Math.PI / 2);
+    expect(context.rotate).toHaveBeenCalledWith(Math.PI / 2);
     expect(context.strokeRect).not.toHaveBeenCalled();
   });
 });
