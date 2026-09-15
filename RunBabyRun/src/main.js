@@ -1,6 +1,7 @@
 import './style.css';
 import { renderGallery } from './pages/gallery.js';
 import { renderHome } from './pages/home.js';
+import { renderDiagnostics } from './pages/diagnostics.js';
 
 const app = document.querySelector('#app');
 
@@ -17,21 +18,24 @@ app.innerHTML = `
 `;
 
 const route = app.querySelector('#route');
+let disposeRoute;
 
 async function renderRoute() {
+  disposeRoute?.();
+  disposeRoute = undefined;
   const path = location.hash.slice(1) || '/';
   try {
     if (path === '/gallery') await renderGallery(route);
-    else if (path === '/play' || path === '/diagnostics') renderPlaceholder(path);
+    else if (path === '/diagnostics') disposeRoute = await renderDiagnostics(route);
+    else if (path === '/play') renderPlaceholder(path);
     else renderHome(route);
   } catch (error) {
     route.innerHTML = `<section class="error"><h1>Data se nepodařilo načíst</h1><pre>${error.message}</pre></section>`;
   }
 }
 
-function renderPlaceholder(path) {
-  const title = path === '/play' ? 'Hra' : 'Diagnostika';
-  route.innerHTML = `<section class="page"><p class="eyebrow">Následující etapa</p><h1>${title}</h1><p class="lede">Tento režim bude připojen k hotovému hernímu jádru.</p></section>`;
+function renderPlaceholder() {
+  route.innerHTML = `<section class="page"><p class="eyebrow">Následující etapa</p><h1>Hra</h1><p class="lede">Tento režim bude připojen k hotovému hernímu jádru.</p></section>`;
 }
 
 window.addEventListener('hashchange', renderRoute);

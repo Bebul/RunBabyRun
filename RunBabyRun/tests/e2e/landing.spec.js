@@ -14,3 +14,11 @@ test('gallery exposes every playable zone', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Zóna 42' })).toBeVisible();
   await expect(page.getByText('FIELD82.DAT')).toBeVisible();
 });
+
+test('diagnostics can advance exactly one microtick', async ({ page }) => {
+  await page.goto('/#/diagnostics');
+  await expect(page.getByRole('heading', { name: 'Diagnostika simulace' })).toBeVisible();
+  await page.getByRole('button', { name: '+ 1 mikrotick' }).click();
+  await expect(page.locator('#diagnostic-state')).toContainText('"tick": 1');
+  await expect(page.locator('#diagnostic-state')).toContainText('"microStep": 1');
+});

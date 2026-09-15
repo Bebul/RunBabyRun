@@ -48,3 +48,13 @@ canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; 
 .sprite-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 16px; background: #30385a; border: 1px solid #30385a; }
 .sprite-item { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 9px; background: #0b0f22; }
 .sprite-item span, .sprite-item small { color: #8994bf; }
+.diagnostic-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 30px 0 18px; }
+button, select { border: 1px solid #59638a; padding: 8px 12px; color: #eef1ff; background: #141a34; font: inherit; }
+button { cursor: pointer; }
+button:hover { border-color: #55ffff; }
+.diagnostic-layout { display: grid; grid-template-columns: minmax(520px, 960px) minmax(280px, 420px); gap: 24px; align-items: start; }
+.diagnostic-layout pre { max-height: 600px; margin: 0; padding: 16px; overflow: auto; color: #b9c5ef; background: #050713; border: 1px solid #30385a; font-size: 12px; }
+.legend span { display: inline-block; width: 10px; height: 10px; margin: 0 5px 0 18px; }
+.legend .player-dot { background: #ffff55; margin-left: 0; }
+.enemy-dot { background: #ff5555; }
+.wreck-dot { background: #aaaaaa; }
