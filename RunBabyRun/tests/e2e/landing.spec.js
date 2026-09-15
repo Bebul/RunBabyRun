@@ -22,3 +22,13 @@ test('diagnostics can advance exactly one microtick', async ({ page }) => {
   await expect(page.locator('#diagnostic-state')).toContainText('"tick": 1');
   await expect(page.locator('#diagnostic-state')).toContainText('"microStep": 1');
 });
+
+test('campaign starts from the keyboard and returns to menu', async ({ page }) => {
+  await page.goto('/#/play');
+  const canvas = page.locator('#game-canvas');
+  await expect(canvas).toHaveAttribute('data-mode', 'ready');
+  await page.keyboard.press('Enter');
+  await expect(canvas).toHaveAttribute('data-mode', 'running');
+  await page.keyboard.press('KeyR');
+  await expect(page.getByRole('heading', { name: 'Trať je připravená.' })).toBeVisible();
+});

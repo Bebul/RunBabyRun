@@ -2,6 +2,7 @@ import './style.css';
 import { renderGallery } from './pages/gallery.js';
 import { renderHome } from './pages/home.js';
 import { renderDiagnostics } from './pages/diagnostics.js';
+import { renderPlay } from './pages/play.js';
 
 const app = document.querySelector('#app');
 
@@ -27,15 +28,11 @@ async function renderRoute() {
   try {
     if (path === '/gallery') await renderGallery(route);
     else if (path === '/diagnostics') disposeRoute = await renderDiagnostics(route);
-    else if (path === '/play') renderPlaceholder(path);
+    else if (path === '/play') disposeRoute = await renderPlay(route);
     else renderHome(route);
   } catch (error) {
     route.innerHTML = `<section class="error"><h1>Data se nepodařilo načíst</h1><pre>${error.message}</pre></section>`;
   }
-}
-
-function renderPlaceholder() {
-  route.innerHTML = `<section class="page"><p class="eyebrow">Následující etapa</p><h1>Hra</h1><p class="lede">Tento režim bude připojen k hotovému hernímu jádru.</p></section>`;
 }
 
 window.addEventListener('hashchange', renderRoute);
