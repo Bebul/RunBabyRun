@@ -1,3 +1,5 @@
+import { DIRECTIONS } from '../game/engine.js';
+
 export const COLORS = {
   // The original mode 13h screen clears unused track cells to palette index 0.
   background: '#000000',
@@ -42,9 +44,11 @@ export function drawGame(context, data, state) {
   if (state.mode === 'ready') {
     drawStartingGrid(context, data, state);
   } else {
-    for (const enemy of state.enemies) drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed);
+    for (const enemy of state.enemies) {
+      drawVehicleSprite(context, data, enemy, enemy.spriteId, state.microStep, enemy.crashed, canAdvance(state.maze, enemy));
+    }
   }
-  drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, state.microStep, false);
+  drawVehicleSprite(context, data, state.player, state.zone.playerSpriteId, state.microStep, false, canAdvance(state.maze, state.player));
   drawHud(context, data, state);
 
   if (state.mode !== 'running' && state.mode !== 'ready') drawOverlay(context, state);
@@ -113,11 +117,11 @@ function drawBitmapNumber(context, value, x, y) {
   }
 }
 
-function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck) {
+function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck, canAdvance = true) {
   const horizontal = entity.direction === 'left' || entity.direction === 'right';
   let x = Math.min(entity.head.x, entity.tail.x) * 8;
   let y = Math.min(entity.head.y, entity.tail.y) * 8;
-  if (!wreck && microStep && !entity.crashed) {
+  if (!wreck && microStep && !entity.crashed && canAdvance) {
     const direction = entity.direction;
     if (direction === 'left') x -= microStep;
     if (direction === 'right') x += microStep;
@@ -132,6 +136,14 @@ function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck) {
   } else {
     drawSprite(context, data, spriteId, x, y, entity.direction);
   }
+}
+
+function canAdvance(maze, entity) {
+  const direction = DIRECTIONS[entity.direction];
+  const target = { x: entity.head.x + direction.x, y: entity.head.y + direction.y };
+  return target.y >= 0 && target.y < maze.height
+    && target.x >= 0 && target.x < maze.width
+    && maze.rows[target.y][target.x] !== '#';
 }
 
 const PIXEL_GLYPHS = {

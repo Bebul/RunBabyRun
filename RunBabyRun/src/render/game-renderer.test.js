@@ -70,3 +70,29 @@ describe('ready screen', () => {
     expect(context.strokeRect).not.toHaveBeenCalled();
   });
 });
+
+describe('stopping at walls', () => {
+  it('keeps a vehicle fully before a wall instead of interpolating it into the wall', () => {
+    const context = {
+      save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), drawImage: vi.fn(), restore: vi.fn(),
+      fillRect: vi.fn(), strokeRect: vi.fn(), fillStyle: '', imageSmoothingEnabled: true,
+    };
+    const rows = Array.from({ length: 25 }, (_, y) => (y === 0 || y === 24 ? '#'.repeat(40) : `#${'.'.repeat(38)}#`));
+    const data = {
+      atlas: {},
+      sprites: [{ id: 'player', width: 8, height: 16, atlas: { x: 0, y: 0, width: 8, height: 16 } }],
+    };
+    const state = {
+      mode: 'running', microStep: 7, lives: 0, zoneNumber: 1,
+      maze: { width: 40, height: 25, rows },
+      zone: { wallSpriteId: 'wall', playerSpriteId: 'player' },
+      player: { head: { x: 1, y: 1 }, tail: { x: 1, y: 2 }, direction: 'up' },
+      enemies: [],
+    };
+
+    drawGame(context, data, state);
+
+    expect(context.translate.mock.calls).toContainEqual([8, 8]);
+    expect(context.translate.mock.calls).not.toContainEqual([8, 1]);
+  });
+});
