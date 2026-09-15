@@ -23,3 +23,28 @@ h1 { margin: 10px 0 22px; font-size: clamp(38px, 5vw, 72px); line-height: .98; }
 dt { color: #8994bf; } dd { margin: 0; } dd.ok { color: #55ff55; }
 .screen-shell { aspect-ratio: 8 / 5; width: min(100%, 960px); padding: 12px; background: #02030a; border: 1px solid #59638a; box-shadow: 0 24px 70px #000a; }
 canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; background: #000; outline: none; }
+.actions { display: flex; gap: 12px; margin-top: 28px; }
+.button { display: inline-block; border: 1px solid #59638a; padding: 12px 18px; text-decoration: none; color: #eef1ff; background: #141a34; }
+.button.primary { color: #07101c; border-color: #55ffff; background: #55ffff; font-weight: 800; }
+.page { max-width: 1500px; margin: 0 auto; padding: 52px 40px 90px; }
+.page h1 { max-width: 900px; }
+.lede { color: #bec5df; max-width: 850px; line-height: 1.7; }
+.loading, .error { padding: 80px 40px; }
+.gallery-layout { display: grid; grid-template-columns: minmax(500px, 1fr) minmax(360px, 640px); gap: 32px; align-items: start; margin-top: 38px; }
+.maze-grid { display: grid; grid-template-columns: repeat(4, minmax(110px, 1fr)); gap: 10px; }
+.maze-card { padding: 6px; color: #dce3ff; border: 1px solid #2c355c; background: #0c1023; font: inherit; cursor: pointer; }
+.maze-card:hover, .maze-card.selected { border-color: #55ffff; background: #182448; }
+.maze-card canvas { aspect-ratio: 8 / 5; margin-bottom: 6px; }
+.maze-card span { font-size: 11px; letter-spacing: .08em; }
+.detail-panel { position: sticky; top: 24px; }
+.detail-screen { width: 100%; }
+.metadata { border: 1px solid #30385a; background: #0b0f22; }
+.metadata div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 9px 12px; border-bottom: 1px solid #242b49; }
+.metadata div:last-child { border: 0; }
+.metadata dd { overflow-wrap: anywhere; }
+.atlas-section { margin-top: 72px; padding-top: 36px; border-top: 1px solid #30385a; }
+.atlas-wrap { padding: 20px; overflow: auto; background: #000; border: 1px solid #30385a; }
+.atlas-wrap img { width: 768px; max-width: none; image-rendering: pixelated; }
+.sprite-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 16px; background: #30385a; border: 1px solid #30385a; }
+.sprite-item { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 9px; background: #0b0f22; }
+.sprite-item span, .sprite-item small { color: #8994bf; }
