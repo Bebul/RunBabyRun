@@ -109,22 +109,73 @@ function drawVehicleSprite(context, data, entity, spriteId, microStep, wreck) {
   }
 }
 
+const PIXEL_GLYPHS = {
+  A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+  B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+  C: ['01111', '10000', '10000', '10000', '10000', '10000', '01111'],
+  D: ['11110', '10001', '10001', '10001', '10001', '10001', '11110'],
+  E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+  F: ['11111', '10000', '10000', '11110', '10000', '10000', '10000'],
+  G: ['01111', '10000', '10000', '10111', '10001', '10001', '01110'],
+  H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
+  I: ['11111', '00100', '00100', '00100', '00100', '00100', '11111'],
+  J: ['00111', '00010', '00010', '00010', '10010', '10010', '01100'],
+  K: ['10001', '10010', '10100', '11000', '10100', '10010', '10001'],
+  L: ['10000', '10000', '10000', '10000', '10000', '10000', '11111'],
+  M: ['10001', '11011', '10101', '10101', '10001', '10001', '10001'],
+  N: ['10001', '11001', '10101', '10011', '10001', '10001', '10001'],
+  O: ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+  P: ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
+  R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+  S: ['01111', '10000', '10000', '01110', '00001', '00001', '11110'],
+  T: ['11111', '00100', '00100', '00100', '00100', '00100', '00100'],
+  U: ['10001', '10001', '10001', '10001', '10001', '10001', '01110'],
+  V: ['10001', '10001', '10001', '10001', '10001', '01010', '00100'],
+  Y: ['10001', '10001', '01010', '00100', '00100', '00100', '00100'],
+  Z: ['11111', '00001', '00010', '00100', '01000', '10000', '11111'],
+  0: ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+  1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+  2: ['01110', '10001', '00001', '00010', '00100', '01000', '11111'],
+  3: ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+  4: ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+  5: ['11111', '10000', '10000', '11110', '00001', '00001', '11110'],
+  6: ['01110', '10000', '10000', '11110', '10001', '10001', '01110'],
+  7: ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+  8: ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+  9: ['01110', '10001', '10001', '01111', '00001', '00001', '01110'],
+  '!': ['00100', '00100', '00100', '00100', '00100', '00000', '00100'],
+  ' ': ['000', '000', '000', '000', '000', '000', '000'],
+};
+
+function pixelTextWidth(text, scale = 1) {
+  return [...text].reduce((width, character) => width + ((PIXEL_GLYPHS[character] ?? PIXEL_GLYPHS[' '])[0].length + 1) * scale, -scale);
+}
+
+export function drawPixelText(context, text, centerX, y, scale = 1) {
+  const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let x = Math.round(centerX - pixelTextWidth(normalized, scale) / 2);
+  for (const character of normalized) {
+    const glyph = PIXEL_GLYPHS[character] ?? PIXEL_GLYPHS[' '];
+    glyph.forEach((row, rowIndex) => {
+      for (let columnIndex = 0; columnIndex < row.length; columnIndex += 1) {
+        if (row[columnIndex] === '1') context.fillRect(x + columnIndex * scale, y + rowIndex * scale, scale, scale);
+      }
+    });
+    x += (glyph[0].length + 1) * scale;
+  }
+}
+
 function drawOverlay(context, state) {
   context.fillStyle = '#000000cc';
   context.fillRect(54, 70, 212, 60);
   context.strokeStyle = COLORS.cyan;
   context.strokeRect(54.5, 70.5, 211, 59);
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.font = 'bold 10px monospace';
   context.fillStyle = state.mode === 'crashed' || state.mode === 'game-over' ? COLORS.red : COLORS.yellow;
   const title = { ready: `ZÓNA ${state.zoneNumber}`, crashed: 'HAVÁRIE', won: 'ZÓNA HOTOVA', 'game-over': 'KONEC HRY', 'campaign-complete': 'VÍTĚZSTVÍ!' }[state.mode] ?? state.mode;
-  context.fillText(title, 160, 91);
-  context.font = '8px monospace';
+  drawPixelText(context, title, 160, 82);
   context.fillStyle = COLORS.white;
   const hint = state.mode === 'ready' ? 'S NEBO ENTER PRO START' : state.mode === 'crashed' ? 'PŘIPRAVUJI NOVÝ POKUS' : '';
-  context.fillText(hint, 160, 111);
-  context.textAlign = 'start';
+  drawPixelText(context, hint, 160, 107);
 }
 
 export function drawMaze(context, data, maze, wallSpriteId) {
