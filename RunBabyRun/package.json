@@ -10,6 +10,7 @@
     "extract": "node scripts/extract-assets.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:pages": "playwright test --config playwright.pages.config.js",
     "test:coop": "playwright test --config playwright.coop.config.js"
   },
   "devDependencies": {

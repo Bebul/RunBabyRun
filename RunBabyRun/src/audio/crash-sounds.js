@@ -1,16 +1,18 @@
+const assetBase = import.meta.env?.BASE_URL ?? '/';
+
 export const CRASH_SOUNDS = Object.freeze({
-  player: '/audio/crash004.mp3',
+  player: `${assetBase}audio/crash004.mp3`,
   vehicles: Object.freeze({
-    'sprite-03-formule3': '/audio/crash004.mp3',
-    'sprite-04-formule5': '/audio/crash005.mp3',
-    'sprite-05-formule6': '/audio/crash006.mp3',
-    'sprite-06-formule7': '/audio/crash007.mp3',
-    'sprite-07-formule8': '/audio/crash004.mp3',
-    'sprite-08-formule9': '/audio/crash005.mp3',
-    'sprite-09-formul10': '/audio/crash006.mp3',
-    'sprite-10-formul11': '/audio/crash007.mp3',
+    'sprite-03-formule3': `${assetBase}audio/crash004.mp3`,
+    'sprite-04-formule5': `${assetBase}audio/crash005.mp3`,
+    'sprite-05-formule6': `${assetBase}audio/crash006.mp3`,
+    'sprite-06-formule7': `${assetBase}audio/crash007.mp3`,
+    'sprite-07-formule8': `${assetBase}audio/crash004.mp3`,
+    'sprite-08-formule9': `${assetBase}audio/crash005.mp3`,
+    'sprite-09-formul10': `${assetBase}audio/crash006.mp3`,
+    'sprite-10-formul11': `${assetBase}audio/crash007.mp3`,
   }),
-  fallbackVehicle: '/audio/crash004.mp3',
+  fallbackVehicle: `${assetBase}audio/crash004.mp3`,
 });
 
 export function crashSoundsForTransition(previous, current) {

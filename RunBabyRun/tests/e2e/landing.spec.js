@@ -197,7 +197,7 @@ test('a campaign crash advances to the next zone with one fewer life', async ({ 
   await expect(canvas).toHaveAttribute('data-mode', 'ready');
   await expect(canvas).toHaveAttribute('data-zone', '2');
   await expect(page.locator('#game-status')).toContainText('Životy6');
-  await expect.poll(() => page.evaluate(() => window.playedCrashSounds)).toContain('/audio/crash004.mp3');
+  await expect.poll(() => page.evaluate(() => window.playedCrashSounds.map((source) => new URL(source, location.href).pathname))).toContain('/audio/crash004.mp3');
 });
 
 test('high scores survive a reload', async ({ page }) => {

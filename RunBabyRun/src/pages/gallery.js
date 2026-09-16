@@ -18,7 +18,7 @@ export async function renderGallery(app) {
       </div>
       <section class="atlas-section">
         <h2>Atlas původní grafiky</h2>
-        <div class="atlas-wrap"><img src="/generated/atlas.png" alt="Atlas 46 původních obrázků" /></div>
+        <div class="atlas-wrap"><img src="${import.meta.env.BASE_URL}generated/atlas.png" alt="Atlas 46 původních obrázků" /></div>
         <div class="sprite-list" id="sprite-list"></div>
       </section>
     </section>`;

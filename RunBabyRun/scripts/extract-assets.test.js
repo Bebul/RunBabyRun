@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
 import { createVgaPalette, decodeMaze, encodeMaze, parsePascalLoads, parseZones } from './extract-assets.mjs';
 
 describe('original data extraction', () => {
@@ -15,7 +16,7 @@ describe('original data extraction', () => {
     expect(encodeMaze(maze)).toEqual(body);
   });
 
-  it('parses all active zone records from the original ASM', async () => {
+  it.skipIf(!existsSync(new URL('../../H_ESC_3/ATEST.ASM', import.meta.url)))('parses all active zone records from the original ASM', async () => {
     const { readFile } = await import('node:fs/promises');
     const asm = await readFile(new URL('../../H_ESC_3/ATEST.ASM', import.meta.url), 'latin1');
     const zones = parseZones(asm);

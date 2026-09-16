@@ -1,12 +1,14 @@
+const assetBase = import.meta.env?.BASE_URL ?? '/';
+
 let cache;
 
 export async function loadGameData() {
   if (!cache) {
     cache = Promise.all([
-      fetch('/generated/mazes.json').then(checkResponse).then((response) => response.json()),
-      fetch('/generated/sprites.json').then(checkResponse).then((response) => response.json()),
-      fetch('/generated/zones.json').then(checkResponse).then((response) => response.json()),
-      loadImage('/generated/atlas.png'),
+      fetch(`${assetBase}generated/mazes.json`).then(checkResponse).then((response) => response.json()),
+      fetch(`${assetBase}generated/sprites.json`).then(checkResponse).then((response) => response.json()),
+      fetch(`${assetBase}generated/zones.json`).then(checkResponse).then((response) => response.json()),
+      loadImage(`${assetBase}generated/atlas.png`),
     ]).then(([mazeData, spriteData, zoneData, atlas]) => ({
       mazes: mazeData.mazes,
       sprites: spriteData.sprites,
