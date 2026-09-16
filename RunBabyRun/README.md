@@ -22,4 +22,4 @@ Soubory v `public/generated` jsou generované. Neupravují se ručně.
 
 Ovládání zachovává původní klávesy Z/X/S/R a přidává A/D, šipky, Enter a Escape. Hudba a zvuky nejsou v této verzi implementované.
 
-První stisk zatočí při nejbližším zpracování vstupu. Držení se čte na konci každé osmimikrokrokové dávky, takže otočky mohou navazovat na místě, nezávisle na opakování klávesnice. Opakovaná otočka se neukládá předem do bufferu: puštění klávesy před koncem dávky ji zruší. Jde o záměrnou úpravu oproti prodlevě `korektkey` v DOS verzi. Při přechodu mezi zónami je nutné drženou klávesu pustit a znovu stisknout.
+První stisk zatočí při nejbližším zpracování vstupu. Po 140 ms se stisk považuje za držení; tato hranice nezávisí na rychlosti zóny a chrání krátká klepnutí před dvojím zatočením. Držení se pak čte na konci každé osmimikrokrokové dávky, takže otočky mohou navazovat na místě, nezávisle na opakování klávesnice. Opakovaná otočka se neukládá předem do bufferu: puštění klávesy před koncem dávky ji zruší. Jde o záměrnou úpravu oproti prodlevě `korektkey` v DOS verzi. Při přechodu mezi zónami je nutné drženou klávesu pustit a znovu stisknout.

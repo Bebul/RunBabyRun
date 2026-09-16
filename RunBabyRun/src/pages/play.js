@@ -7,6 +7,7 @@ import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
 const PIT_HZ = 1193182 / 1300;
 const SPEEDS = { slow: 30, normal: 18, fast: 7 };
 const TURN_KEYS = { z: 'left', a: 'left', arrowleft: 'left', x: 'right', d: 'right', arrowright: 'right' };
+const TURN_HOLD_DELAY_MS = 140;
 
 export async function renderPlay(app, options = {}) {
   const data = await loadGameData();
@@ -37,7 +38,7 @@ export async function renderPlay(app, options = {}) {
   let completedZones = options.completedZones ?? 0;
   let scoreSaved = false;
   let pendingInput = {};
-  const heldTurnKeys = new Set();
+  const heldTurnKeys = new Map();
   const blockedTurnKeys = new Set();
   let accumulator = 0;
   let previousTime = performance.now();
@@ -50,10 +51,11 @@ export async function renderPlay(app, options = {}) {
     previousTime = now;
     if (!document.hidden && !transitionAt) {
       const interval = tickInterval(state);
-      const heldKey = [...heldTurnKeys].filter((key) => !blockedTurnKeys.has(key)).at(-1);
+      const heldKey = [...heldTurnKeys.keys()].filter((key) => !blockedTurnKeys.has(key)).at(-1);
+      const repeatTurn = heldKey && now - heldTurnKeys.get(heldKey) >= TURN_HOLD_DELAY_MS;
       ({ state, accumulator, pendingInput } = advanceSimulation(
         state,
-        { accumulator, elapsed, interval, pendingInput, heldInput: heldKey ? { turn: TURN_KEYS[heldKey] } : {} },
+        { accumulator, elapsed, interval, pendingInput, heldInput: repeatTurn ? { turn: TURN_KEYS[heldKey] } : {} },
         step,
       ));
     }
@@ -111,7 +113,7 @@ export async function renderPlay(app, options = {}) {
     if (['arrowleft', 'arrowright', ' ', 'enter'].includes(key)) event.preventDefault();
     const turn = TURN_KEYS[key];
     if (turn && !event.repeat) {
-      heldTurnKeys.add(key);
+      heldTurnKeys.set(key, performance.now());
       if (state.mode !== 'running') blockedTurnKeys.add(key);
       else if (!blockedTurnKeys.has(key)) pendingInput.turn = turn;
     }
@@ -126,7 +128,7 @@ export async function renderPlay(app, options = {}) {
   function resetInput() {
     pendingInput = {};
     accumulator = 0;
-    heldTurnKeys.forEach((key) => blockedTurnKeys.add(key));
+    heldTurnKeys.forEach((_, key) => blockedTurnKeys.add(key));
   }
 
   function onKeyup(event) {

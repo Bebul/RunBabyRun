@@ -1,6 +1,46 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('a short tap in zone eight turns only once while a hold still repeats', async ({ page, context }) => {
+  const baseline = await context.newPage();
+  const advance = async (target, milliseconds) => {
+    for (let elapsed = 0; elapsed < milliseconds; elapsed += 10) {
+      await target.clock.runFor(10);
+      await target.evaluate(() => window.testGameFrame(performance.now()));
+    }
+  };
+  const start = async (target) => {
+    await target.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+    await target.addInitScript(() => {
+      window.requestAnimationFrame = (callback) => { window.testGameFrame = callback; return 1; };
+      window.cancelAnimationFrame = () => {};
+    });
+    await target.goto('/#/practice/8');
+    await expect(target.locator('#game-canvas')).toHaveAttribute('data-mode', 'ready');
+    await target.clock.pauseAt(new Date('2026-01-01T00:00:10Z'));
+    await target.keyboard.press('s');
+    await advance(target, 200);
+  };
+  const pixels = (target) => target.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL());
+  await start(page);
+  await start(baseline);
+  await page.keyboard.down('x');
+  await advance(page, 110);
+  await page.keyboard.up('x');
+  await baseline.keyboard.press('x');
+  await advance(baseline, 110);
+  await advance(page, 200);
+  await advance(baseline, 200);
+  expect(await pixels(page)).toBe(await pixels(baseline));
+  await page.keyboard.down('x');
+  await baseline.keyboard.press('x');
+  await advance(page, 400);
+  await advance(baseline, 400);
+  expect(await pixels(page)).not.toBe(await pixels(baseline));
+  await page.keyboard.up('x');
+  await baseline.close();
+});
+
 test('wrecks preserve every opponent silhouette in all four directions', async ({ page }) => {
   for (const modulePath of ['data/load-game-data.js', 'render/game-renderer.js']) {
     const body = await readFile(new URL(`../../src/${modulePath}`, import.meta.url), 'utf8');
