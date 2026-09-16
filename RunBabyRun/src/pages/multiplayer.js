@@ -27,13 +27,13 @@ export async function renderMultiplayer(app, room) {
       <p id="coop-status" role="status"></p>
       <div class="coop-indicators"><span id="left-indicator">Hráč 1 · ← · puštěno</span><span id="right-indicator">Hráč 2 · → · puštěno</span></div>
       <button id="coop-turn" class="coop-turn" disabled>${host ? '← Doleva' : 'Doprava →'}</button>
-      <button id="coop-start" disabled>${host ? 'Spustit společně' : 'Jsem připraven/a'}</button>
+      <button id="coop-start" ${host ? 'disabled' : 'hidden'}>Spustit společně</button>
       <button id="coop-new">Nová dvojice</button>
     </div><aside class="game-help"><h2>Jak se hraje ve dvou</h2>
       <p>Společně ovládáte jednu formuli v původní kampani. Hráč 1 má pouze levou zatáčku (← / A / Z), hráč 2 pouze pravou (→ / D / X). Na telefonu držte velké tlačítko pod hrou.</p>
       <p>Auto jede samo. Zatáčky jsou relativní ke směru jízdy. Krátký stisk zatočí jednou, držení zatáčky opakuje. Rozsvícený ukazatel prozradí stisk spoluhráče. Při souběhu rozhoduje naposledy přijatý stisk.</p>
       <p>Soupeři kopírují vaši stopu. Naveďte je do vzájemných kolizí, dokud nezůstane jediný. Máte společných sedm životů; i po havárii postupujete do další zóny.</p>
-      <p>Hráč 2 potvrdí připravenost a hráč 1 spustí odpočet. RTT měření sladí hodiny před startem. Každou další zónu spustíte stejným způsobem.</p>
+      <p>Hráč 1 spustí společný odpočet, hráč 2 se připojí rovnou do hry. RTT měření sladí hodiny před startem. Hráč 1 spouští také každou další zónu.</p>
       <p>Hlas si zařiďte například hovorem přes WhatsApp. Hra mikrofon ani kameru nepoužívá. Při skrytí hry se jízda pozastaví; po návratu znovu potvrďte start.</p>
       <p>Potřebujete internet a odkaz dostupný oběma hráčům. Při blokování WebRTC může být nutná jiná síť. Kooperativní výsledky se nemíchají do sólo rekordů.</p>
     </aside></div></section>`;
@@ -72,8 +72,8 @@ export async function renderMultiplayer(app, room) {
   }
   function pause(broadcast = true) {
     active = false; startAt = 0; remoteReady = false; clearInput();
-    if (ready) status(`Spojeno · RTT ${Math.round(rtt)} ms · Pozastaveno, potvrďte společný start.`);
-    $('#coop-start').disabled = !ready || host;
+    if (ready) status(`Spojeno · RTT ${Math.round(rtt)} ms · Pozastaveno, hráč 1 může spustit společný start.`);
+    $('#coop-start').disabled = !ready || !host;
     if (broadcast) session.send({ type: 'pause' });
   }
   const session = createSession({ Peer, room, peerOptions: JSON.parse(import.meta.env.VITE_PEER_OPTIONS || '{}'), onStatus: status,
@@ -85,16 +85,13 @@ export async function renderMultiplayer(app, room) {
     },
     onReady: (sample) => {
       ready = true; offset = sample.offset; rtt = sample.rtt;
-      status(`Spojeno · RTT ${Math.round(rtt)} ms. ${host ? 'Čekáme na připravenost hráče 2.' : 'Potvrďte připravenost.'}`);
-      $('#coop-start').disabled = host;
+      status(`Spojeno · RTT ${Math.round(rtt)} ms. ${host ? 'Hráč 1 může spustit společný start.' : 'Čekáme na start hráče 1.'}`);
+      $('#coop-start').disabled = !host;
     },
     onClose: () => { ready = false; pause(false); },
     onMessage: (message) => {
       if (message.type === 'input' && typeof message.down === 'boolean') {
         input(host ? 'right' : 'left', message.down && active);
-      } else if (host && message.type === 'ready') {
-        if (active || startAt) return;
-        remoteReady = true; $('#coop-start').disabled = false; status('Hráč 2 je připraven. Spusťte společný odpočet.');
       } else if (!host && message.type === 'start' && Number.isFinite(message.at)) {
         if (document.hidden) { pause(); return; }
         clearInput(); startAt = message.at - offset; $('#coop-start').disabled = true;
@@ -112,8 +109,7 @@ export async function renderMultiplayer(app, room) {
   });
   $('#coop-start').onclick = () => {
     if (!ready || document.hidden) return;
-    if (!host) { session.send({ type: 'ready' }); $('#coop-start').disabled = true; status('Připraveno. Čekáme na start hráče 1.'); return; }
-    if (!remoteReady) return;
+    if (!host) return;
     if (state.mode === 'campaign-complete' || state.mode === 'game-over') { state = createGame(data); completed = 0; }
     clearInput(); startAt = performance.now() + Math.max(3000, rtt * 4); remoteReady = false;
     status(`Spojeno · RTT ${Math.round(rtt)} ms · Společný odpočet.`);

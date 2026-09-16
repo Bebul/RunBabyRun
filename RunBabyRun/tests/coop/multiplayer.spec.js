@@ -12,13 +12,12 @@ test('real WebRTC: invitation, RTT, shared start, split controls, pause and disc
   await guest.goto(invite);
   await expect(guest.locator('#connection-status')).toContainText('RTT', { timeout: 15000 });
   await expect(host.locator('#connection-status')).toContainText('RTT');
-  await expect(host.locator('#coop-start')).toBeDisabled();
+  await expect(host.locator('#coop-start')).toBeEnabled();
+  await expect(guest.locator('#coop-start')).toBeHidden();
   const extra = await second.newPage();
   await extra.goto(invite);
   await expect(extra.locator('#connection-status')).toContainText('odpojil');
   await extra.close();
-  await guest.locator('#coop-start').click();
-  await expect(host.locator('#coop-start')).toBeEnabled();
   await host.locator('#coop-start').click();
   await expect(guest.locator('#coop-status')).toContainText('Start za');
   await expect(host.locator('#coop-canvas')).toHaveAttribute('data-mode', 'running', { timeout: 6000 });
@@ -50,7 +49,6 @@ test('real WebRTC: invitation, RTT, shared start, split controls, pause and disc
     await host.locator('#coop-canvas').evaluate((canvas) => canvas.toDataURL()));
   await guest.screenshot({ path: 'test-results/coop-mobile.png', fullPage: true });
   await guest.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: false }); });
-  await guest.locator('#coop-start').click();
   await host.locator('#coop-start').click();
   await expect(guest.locator('#coop-status')).toContainText('Společná jízda', { timeout: 6000 });
   expect(await guest.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
