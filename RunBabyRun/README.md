@@ -20,6 +20,6 @@ Soubory v `public/generated` jsou generované. Neupravují se ručně.
 - `#/diagnostics` – krokování čisté simulace po mikroticích.
 - `#/scores` – deset výsledků uložených v `localStorage`.
 
-Ovládání zachovává původní klávesy Z/X/S/R a přidává A/D, šipky, Enter a Escape. Hudba a zvuky nejsou v této verzi implementované.
+Ovládání zachovává původní klávesy Z/X/S/R a přidává A/D, šipky, Enter a Escape. Přepínač pod herní obrazovkou (nebo původní zkratka Alt+P) spouští tři Bachovy skladby dekódované přímo z notového proudu v `ATEST.ASM`. Zvukové efekty zatím implementované nejsou.
 
 První stisk zatočí při nejbližším zpracování vstupu. Po 140 ms se stisk považuje za držení; tato hranice nezávisí na rychlosti zóny a chrání krátká klepnutí před dvojím zatočením. Držení se pak čte na konci každé osmimikrokrokové dávky, takže otočky mohou navazovat na místě, nezávisle na opakování klávesnice. Opakovaná otočka se neukládá předem do bufferu: puštění klávesy před koncem dávky ji zruší. Jde o záměrnou úpravu oproti prodlevě `korektkey` v DOS verzi. Při přechodu mezi zónami je nutné drženou klávesu pustit a znovu stisknout.

@@ -146,6 +146,21 @@ test('campaign starts from the keyboard and returns to menu', async ({ page }) =
   await expect(page.getByRole('heading', { name: 'Run Baby Run' })).toBeVisible();
 });
 
+test('Bach music can be toggled and keeps its setting', async ({ page }) => {
+  await page.goto('/#/play');
+  const toggle = page.getByRole('button', { name: /Hudba/ });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle).toContainText('Zapnuta');
+  await expect(page.locator('#current-music')).toHaveText('J. S. Bach — Preludium a moll');
+  await page.reload();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Alt+p');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('runbabyrun.settings.v1')).music)).toBe(false);
+});
+
 test('practice exposes all zones and launches the selected one', async ({ page }) => {
   await page.goto('/#/practice');
   await expect(page.locator('[data-practice-zone]')).toHaveCount(42);

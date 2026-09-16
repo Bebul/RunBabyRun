@@ -63,7 +63,14 @@ button:hover { border-color: #55ffff; }
 .speed-pills { display: flex; gap: 6px; margin-bottom: 8px; }
 .speed-pills button.active { color: #07101c; border-color: #55ffff; background: #55ffff; }
 .play-layout { display: grid; grid-template-columns: minmax(600px, 960px) 300px; gap: 32px; align-items: start; margin-top: 32px; }
+.screen-column { min-width: 0; }
 .game-screen { width: 100%; }
+.display-controls { display: flex; align-items: center; gap: 14px; margin-top: 10px; color: #8994bf; }
+.display-controls small { line-height: 1.5; }
+.display-toggle { display: inline-flex; align-items: center; gap: 12px; min-width: 174px; justify-content: space-between; }
+.display-toggle strong { color: #ff7b7b; font-size: 12px; text-transform: uppercase; }
+.display-toggle[aria-pressed="true"] { border-color: #55ffff; background: #182448; }
+.display-toggle[aria-pressed="true"] strong { color: #55ff55; }
 .game-help { padding: 4px 0; }
 .game-help h2 { color: #ffff55; }
 .game-help p { color: #bec5df; font-size: 13px; line-height: 1.6; }

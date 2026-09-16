@@ -3,6 +3,7 @@ import { createGame, step } from '../game/engine.js';
 import { advanceSimulation } from '../game/simulation-clock.js';
 import { drawGame } from '../render/game-renderer.js';
 import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
+import { BachMusic } from '../audio/bach-music.js';
 
 const PIT_HZ = 1193182 / 1300;
 const SPEEDS = { slow: 30, normal: 18, fast: 7 };
@@ -11,12 +12,18 @@ const TURN_HOLD_DELAY_MS = 140;
 
 export async function renderPlay(app, options = {}) {
   const data = await loadGameData();
-  const settings = loadSettings();
+  let settings = loadSettings();
   app.innerHTML = `
     <section class="page play-page">
       <div class="play-heading"><div><p class="eyebrow">${options.practice ? 'Trénink' : 'Kampaň / 42 zón'}</p><h1>${options.practice ? `Zóna ${options.zoneNumber}` : 'Na start!'}</h1></div><div class="speed-pills" aria-label="Rychlost hry"><button data-speed="slow">Pomalá</button><button data-speed="normal">Normální</button><button data-speed="fast">Rychlá</button></div></div>
       <div class="play-layout">
-        <div class="screen-shell game-screen"><canvas width="320" height="200" id="game-canvas" data-mode="ready" tabindex="0" aria-label="Hra Run Baby Run"></canvas></div>
+        <div class="screen-column">
+          <div class="screen-shell game-screen"><canvas width="320" height="200" id="game-canvas" data-mode="ready" tabindex="0" aria-label="Hra Run Baby Run"></canvas></div>
+          <div class="display-controls" aria-label="Nastavení obrazu a zvuku">
+            <button class="display-toggle" id="toggle-music" type="button" aria-pressed="false"><span>♫ Hudba</span><strong>Vypnuta</strong></button>
+            <small><span id="current-music">Hudba je vypnutá</span> · <kbd>Alt</kbd>+<kbd>P</kbd></small>
+          </div>
+        </div>
         <aside class="game-help">
           <h2>Ovládání</h2>
           <p><kbd>Z</kbd> / <kbd>A</kbd> / <kbd>←</kbd> zatočit vlevo</p>
@@ -33,6 +40,11 @@ export async function renderPlay(app, options = {}) {
 
   const canvas = app.querySelector('#game-canvas');
   const context = canvas.getContext('2d');
+  const music = new BachMusic(undefined, (track) => {
+    const label = app.querySelector('#current-music');
+    if (label) label.textContent = `J. S. Bach — ${track.title}`;
+  });
+  let musicEnabled = settings.music;
   let speed = options.speed ?? settings.speed;
   let state = createGame(data, { zoneNumber: options.zoneNumber ?? 1, practice: options.practice ?? false });
   let completedZones = options.completedZones ?? 0;
@@ -110,6 +122,12 @@ export async function renderPlay(app, options = {}) {
 
   function onKeydown(event) {
     const key = event.key.toLowerCase();
+    if (event.altKey && key === 'p') {
+      event.preventDefault();
+      toggleMusic();
+      return;
+    }
+    if (musicEnabled) music.setEnabled(true).catch(() => {});
     if (['arrowleft', 'arrowright', ' ', 'enter'].includes(key)) event.preventDefault();
     const turn = TURN_KEYS[key];
     if (turn && !event.repeat) {
@@ -148,11 +166,28 @@ export async function renderPlay(app, options = {}) {
     if (document.hidden) onBlur();
   }
 
+  function updateMusicButton() {
+    const button = app.querySelector('#toggle-music');
+    button.setAttribute('aria-pressed', String(musicEnabled));
+    button.querySelector('strong').textContent = musicEnabled ? 'Zapnuta' : 'Vypnuta';
+    if (!musicEnabled) app.querySelector('#current-music').textContent = 'Hudba je vypnutá';
+  }
+
+  function toggleMusic() {
+    musicEnabled = !musicEnabled;
+    settings = saveSettings({ ...settings, speed, music: musicEnabled });
+    updateMusicButton();
+    music.setEnabled(musicEnabled).catch(() => {});
+  }
+
   app.querySelectorAll('[data-speed]').forEach((button) => button.addEventListener('click', () => {
     speed = button.dataset.speed;
-    saveSettings({ ...settings, speed });
+    settings = saveSettings({ ...settings, speed });
     app.querySelectorAll('[data-speed]').forEach((candidate) => candidate.classList.toggle('active', candidate === button));
   }));
+  app.querySelector('#toggle-music').addEventListener('click', toggleMusic);
+  updateMusicButton();
+  if (musicEnabled) music.setEnabled(true).catch(() => {});
   app.querySelector(`[data-speed="${speed}"]`)?.classList.add('active');
   app.querySelector('#continue-campaign').addEventListener('click', () => {
     scoreSaved = false;
@@ -175,5 +210,6 @@ export async function renderPlay(app, options = {}) {
     window.removeEventListener('keyup', onKeyup);
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('visibilitychange', onVisibilityChange);
+    music.dispose();
   };
 }

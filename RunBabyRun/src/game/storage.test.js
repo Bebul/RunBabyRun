@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HIGH_SCORE_KEY, rankScores, sanitizeName, saveScore } from './storage.js';
+import { HIGH_SCORE_KEY, SETTINGS_KEY, loadSettings, rankScores, sanitizeName, saveScore, saveSettings } from './storage.js';
 
 function memoryStorage() {
   const values = new Map();
@@ -23,5 +23,15 @@ describe('high scores', () => {
     const storage = memoryStorage();
     saveScore({ name: 'Ada', score: 21 }, storage);
     expect(JSON.parse(storage.getItem(HIGH_SCORE_KEY))[0]).toEqual({ name: 'Ada', score: 21 });
+  });
+});
+
+describe('settings', () => {
+  it('keeps the music switch off by default and persists an explicit choice', () => {
+    const storage = memoryStorage();
+    expect(loadSettings(storage).music).toBe(false);
+    saveSettings({ name: 'Ada', speed: 'fast', music: true }, storage);
+    expect(JSON.parse(storage.getItem(SETTINGS_KEY))).toEqual({ name: 'Ada', speed: 'fast', music: true });
+    expect(loadSettings(storage).music).toBe(true);
   });
 });

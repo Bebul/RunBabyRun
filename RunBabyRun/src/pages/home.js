@@ -2,7 +2,7 @@ import { createPixelCanvas } from '../render/pixel-canvas.js';
 import { loadSettings, saveSettings } from '../game/storage.js';
 
 export function renderHome(app) {
-  const settings = loadSettings();
+  let settings = loadSettings();
   app.innerHTML = `
     <section class="landing">
       <div class="intro">
@@ -39,5 +39,7 @@ export function renderHome(app) {
   const form = app.querySelector('#menu-settings');
   form.elements.name.value = settings.name;
   form.elements.speed.value = settings.speed;
-  form.addEventListener('input', () => saveSettings({ name: form.elements.name.value, speed: form.elements.speed.value }));
+  form.addEventListener('input', () => {
+    settings = saveSettings({ ...settings, name: form.elements.name.value, speed: form.elements.speed.value });
+  });
 }

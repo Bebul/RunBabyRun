@@ -34,14 +34,18 @@ export function saveScore(entry, storage = localStorage) {
 
 export function loadSettings(storage = localStorage) {
   try {
-    return { name: 'HRÁČ', speed: 'normal', ...JSON.parse(storage.getItem(SETTINGS_KEY)) };
+    return { name: 'HRÁČ', speed: 'normal', music: false, ...JSON.parse(storage.getItem(SETTINGS_KEY)) };
   } catch {
-    return { name: 'HRÁČ', speed: 'normal' };
+    return { name: 'HRÁČ', speed: 'normal', music: false };
   }
 }
 
 export function saveSettings(settings, storage = localStorage) {
-  const safe = { name: sanitizeName(settings.name), speed: ['slow', 'normal', 'fast'].includes(settings.speed) ? settings.speed : 'normal' };
+  const safe = {
+    name: sanitizeName(settings.name),
+    speed: ['slow', 'normal', 'fast'].includes(settings.speed) ? settings.speed : 'normal',
+    music: settings.music === true,
+  };
   storage.setItem(SETTINGS_KEY, JSON.stringify(safe));
   return safe;
 }
