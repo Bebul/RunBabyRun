@@ -29,9 +29,11 @@ describe('high scores', () => {
 describe('settings', () => {
   it('keeps the music switch off by default and persists an explicit choice', () => {
     const storage = memoryStorage();
-    expect(loadSettings(storage).music).toBe(false);
-    saveSettings({ name: 'Ada', speed: 'fast', music: true }, storage);
-    expect(JSON.parse(storage.getItem(SETTINGS_KEY))).toEqual({ name: 'Ada', speed: 'fast', music: true });
-    expect(loadSettings(storage).music).toBe(true);
+    expect(loadSettings(storage)).toMatchObject({ music: false, soundEffects: true });
+    saveSettings({ name: 'Ada', speed: 'fast', music: true, soundEffects: false }, storage);
+    expect(JSON.parse(storage.getItem(SETTINGS_KEY))).toEqual({
+      name: 'Ada', speed: 'fast', music: true, soundEffects: false,
+    });
+    expect(loadSettings(storage)).toMatchObject({ music: true, soundEffects: false });
   });
 });

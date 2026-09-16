@@ -146,18 +146,26 @@ test('campaign starts from the keyboard and returns to menu', async ({ page }) =
   await expect(page.getByRole('heading', { name: 'Run Baby Run' })).toBeVisible();
 });
 
-test('Bach music can be toggled and keeps its setting', async ({ page }) => {
+test('music and game sounds have independent persistent switches', async ({ page }) => {
   await page.goto('/#/play');
   const toggle = page.getByRole('button', { name: /Hudba/ });
+  const effects = page.getByRole('button', { name: /Zvuky hry/ });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(effects).toHaveAttribute('aria-pressed', 'true');
+  await effects.click();
+  await expect(effects).toHaveAttribute('aria-pressed', 'false');
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(effects).toHaveAttribute('aria-pressed', 'false');
   await expect(toggle).toContainText('Zapnuta');
   await expect(page.locator('#current-music')).toHaveText('J. S. Bach — Preludium a moll');
   await page.reload();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(effects).toHaveAttribute('aria-pressed', 'false');
   await page.keyboard.press('Alt+p');
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(effects).toHaveAttribute('aria-pressed', 'false');
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('runbabyrun.settings.v1')).music)).toBe(false);
 });
 
@@ -170,6 +178,16 @@ test('practice exposes all zones and launches the selected one', async ({ page }
 });
 
 test('a campaign crash advances to the next zone with one fewer life', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.playedCrashSounds = [];
+    window.Audio = class {
+      constructor(source) { this.source = source; this.currentTime = 0; }
+      cloneNode() { return new window.Audio(this.source); }
+      addEventListener() {}
+      play() { window.playedCrashSounds.push(this.source); return Promise.resolve(); }
+      pause() {}
+    };
+  });
   await page.clock.install();
   await page.goto('/#/play');
   const canvas = page.locator('#game-canvas');
@@ -179,6 +197,7 @@ test('a campaign crash advances to the next zone with one fewer life', async ({ 
   await expect(canvas).toHaveAttribute('data-mode', 'ready');
   await expect(canvas).toHaveAttribute('data-zone', '2');
   await expect(page.locator('#game-status')).toContainText('Životy6');
+  await expect.poll(() => page.evaluate(() => window.playedCrashSounds)).toContain('/audio/crash004.mp3');
 });
 
 test('high scores survive a reload', async ({ page }) => {

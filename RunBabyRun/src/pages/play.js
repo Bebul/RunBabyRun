@@ -4,6 +4,7 @@ import { advanceSimulation } from '../game/simulation-clock.js';
 import { drawGame } from '../render/game-renderer.js';
 import { loadSettings, saveScore, saveSettings } from '../game/storage.js';
 import { BachMusic } from '../audio/bach-music.js';
+import { CrashSoundPlayer } from '../audio/crash-sounds.js';
 
 const PIT_HZ = 1193182 / 1300;
 const SPEEDS = { slow: 30, normal: 18, fast: 7 };
@@ -20,7 +21,8 @@ export async function renderPlay(app, options = {}) {
         <div class="screen-column">
           <div class="screen-shell game-screen"><canvas width="320" height="200" id="game-canvas" data-mode="ready" tabindex="0" aria-label="Hra Run Baby Run"></canvas></div>
           <div class="display-controls" aria-label="Nastavení obrazu a zvuku">
-            <button class="display-toggle" id="toggle-music" type="button" aria-pressed="false"><span>♫ Hudba</span><strong>Vypnuta</strong></button>
+            <button class="display-toggle" id="toggle-music" type="button" aria-pressed="false"><span>♫ Hudba na pozadí</span><strong>Vypnuta</strong></button>
+            <button class="display-toggle" id="toggle-sound-effects" type="button" aria-pressed="true"><span>✹ Zvuky hry</span><strong>Zapnuty</strong></button>
             <small><span id="current-music">Hudba je vypnutá</span> · <kbd>Alt</kbd>+<kbd>P</kbd></small>
           </div>
         </div>
@@ -44,7 +46,10 @@ export async function renderPlay(app, options = {}) {
     const label = app.querySelector('#current-music');
     if (label) label.textContent = `J. S. Bach — ${track.title}`;
   });
+  const crashSounds = new CrashSoundPlayer();
   let musicEnabled = settings.music;
+  let soundEffectsEnabled = settings.soundEffects;
+  crashSounds.setEnabled(soundEffectsEnabled);
   let speed = options.speed ?? settings.speed;
   let state = createGame(data, { zoneNumber: options.zoneNumber ?? 1, practice: options.practice ?? false });
   let completedZones = options.completedZones ?? 0;
@@ -65,11 +70,13 @@ export async function renderPlay(app, options = {}) {
       const interval = tickInterval(state);
       const heldKey = [...heldTurnKeys.keys()].filter((key) => !blockedTurnKeys.has(key)).at(-1);
       const repeatTurn = heldKey && now - heldTurnKeys.get(heldKey) >= TURN_HOLD_DELAY_MS;
+      const previousState = state;
       ({ state, accumulator, pendingInput } = advanceSimulation(
         state,
         { accumulator, elapsed, interval, pendingInput, heldInput: repeatTurn ? { turn: TURN_KEYS[heldKey] } : {} },
         step,
       ));
+      crashSounds.playTransition(previousState, state);
     }
     if ((state.mode === 'crashed' || state.mode === 'won') && !transitionAt) transitionAt = now + 850;
     if (state.mode === 'game-over' && !scoreSaved && !state.practice) {
@@ -180,13 +187,28 @@ export async function renderPlay(app, options = {}) {
     music.setEnabled(musicEnabled).catch(() => {});
   }
 
+  function updateSoundEffectsButton() {
+    const button = app.querySelector('#toggle-sound-effects');
+    button.setAttribute('aria-pressed', String(soundEffectsEnabled));
+    button.querySelector('strong').textContent = soundEffectsEnabled ? 'Zapnuty' : 'Vypnuty';
+  }
+
+  function toggleSoundEffects() {
+    soundEffectsEnabled = !soundEffectsEnabled;
+    settings = saveSettings({ ...settings, speed, soundEffects: soundEffectsEnabled });
+    crashSounds.setEnabled(soundEffectsEnabled);
+    updateSoundEffectsButton();
+  }
+
   app.querySelectorAll('[data-speed]').forEach((button) => button.addEventListener('click', () => {
     speed = button.dataset.speed;
     settings = saveSettings({ ...settings, speed });
     app.querySelectorAll('[data-speed]').forEach((candidate) => candidate.classList.toggle('active', candidate === button));
   }));
   app.querySelector('#toggle-music').addEventListener('click', toggleMusic);
+  app.querySelector('#toggle-sound-effects').addEventListener('click', toggleSoundEffects);
   updateMusicButton();
+  updateSoundEffectsButton();
   if (musicEnabled) music.setEnabled(true).catch(() => {});
   app.querySelector(`[data-speed="${speed}"]`)?.classList.add('active');
   app.querySelector('#continue-campaign').addEventListener('click', () => {
@@ -211,5 +233,6 @@ export async function renderPlay(app, options = {}) {
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     music.dispose();
+    crashSounds.dispose();
   };
 }

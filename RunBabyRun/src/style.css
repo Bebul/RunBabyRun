@@ -65,9 +65,9 @@ button:hover { border-color: #55ffff; }
 .play-layout { display: grid; grid-template-columns: minmax(600px, 960px) 300px; gap: 32px; align-items: start; margin-top: 32px; }
 .screen-column { min-width: 0; }
 .game-screen { width: 100%; }
-.display-controls { display: flex; align-items: center; gap: 14px; margin-top: 10px; color: #8994bf; }
+.display-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; color: #8994bf; }
 .display-controls small { line-height: 1.5; }
-.display-toggle { display: inline-flex; align-items: center; gap: 12px; min-width: 174px; justify-content: space-between; }
+.display-toggle { display: inline-flex; align-items: center; gap: 12px; min-width: 190px; justify-content: space-between; }
 .display-toggle strong { color: #ff7b7b; font-size: 12px; text-transform: uppercase; }
 .display-toggle[aria-pressed="true"] { border-color: #55ffff; background: #182448; }
 .display-toggle[aria-pressed="true"] strong { color: #55ff55; }
