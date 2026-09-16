@@ -9,12 +9,24 @@ Browserový port DOS hry `H_ESC_3`. Hra používá Canvas v interním rozlišen�
 - `npm run build` – vytvoří produkční build pouze z již vygenerovaných dat.
 - `npm test` – spustí jednotkové testy.
 - `npm run test:e2e` – spustí testy v prohlížeči.
+- `npm run test:coop` – dva prohlížeče se skutečným WebRTC a lokálním PeerJS serverem (porty 4174 a 9000); ověří pozvánku, RTT, start, role, shodu obrazu, pauzu a odpojení.
 
 Soubory v `public/generated` jsou generované. Neupravují se ručně.
 
 ## Režimy
 
+### Kampaň ve dvou
+
+Hráč 1 otevře **Kampaň ve dvou**, pošle odkaz nebo ukáže QR kód. Hráč 2 odkaz otevře a potvrdí připravenost; hráč 1 spustí společný odpočet. Oba mohou používat klávesnici nebo dotykové tlačítko. Každá zóna vyžaduje nový společný start. Při skrytí stránky se hra pozastaví, při odpojení je nutná nová dvojice. Sólo rekordy se nemění.
+
+PeerJS používá ve výchozím stavu veřejný signalizační server. Osm RTT vzorků odhadne posun monotónních hodin; vzorek s nejnižším RTT určuje čas odpočtu. Host počítá původní simulaci a posílá úplné stavy nejvýše 30× za sekundu po spolehlivém WebRTC kanálu. Klient zobrazuje přijaté stavy (má tedy síťové zpoždění); neposouvá vlastní nezávislou simulaci. Host čeká na potvrzení startu, spojení hlídá heartbeat. Zvukový hovor není součástí hry.
+
+Pro dva různé přístroje nasaďte web na dostupné HTTPS adrese; odkaz s `localhost` na druhém telefonu nefunguje. Vlastní signaling a ICE/STUN/TURN servery lze nastavit při sestavení JSON proměnnou `VITE_PEER_OPTIONS` podle [PeerJS API](https://peerjs.com/client/api/peer). Například lokální signalizace pro vývoj: `{"host":"127.0.0.1","port":9000,"path":"/","secure":false}`. Pro sítě, kde přímé WebRTC spojení neprojde, je potřeba dostupný TURN server v `config.iceServers`. Nedávejte do veřejného buildu dlouhodobá tajná TURN hesla.
+
+### Adresy
+
 - `#/play` – plná kampaň se 42 zónami.
+- `#/multiplayer` – stejná kampaň kooperativně: hráč 1 zatáčí vlevo, hráč 2 vpravo, pozvánka přes URL a QR.
 - `#/practice` – výběr libovolné zóny pro trénink.
 - `#/gallery` – vizuální kontrola převedených map a grafiky.
 - `#/diagnostics` – krokování čisté simulace po mikroticích.

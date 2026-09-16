@@ -97,3 +97,19 @@ kbd { display: inline-block; min-width: 24px; padding: 2px 5px; color: #fff; tex
 .victory-panel h2 { margin: 5px 0 10px; color: #ffff55; font-size: 30px; }
 .game-over-panel { border-color: #ff5555; }
 .game-over-panel h2 { color: #ff5555; }
+
+.coop-page #invitation { padding: 20px; border: 1px solid #59638a; margin: 24px 0; }
+.coop-page #invite-qr { width: 220px; height: 220px; max-width: 100%; display: block; margin-bottom: 16px; }
+.coop-page #invite-url { width: 100%; padding: 10px; margin: 8px 0 16px; box-sizing: border-box; }
+.coop-indicators { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.coop-indicators span { padding: 12px; border: 1px solid #59638a; }
+.coop-indicators .pressed { background: #55ffff; color: #07101c; }
+.coop-turn { display: block; width: 100%; min-height: 80px; margin: 16px 0; font-size: 24px; touch-action: none; user-select: none; }
+button:disabled { opacity: .45; cursor: default; }
+@media (max-width: 1000px) {
+  body:has(.coop-page) { min-width: 320px; }
+  body:has(.coop-page) .site-header { flex-wrap: wrap; gap: 16px; padding: 20px; }
+  body:has(.coop-page) nav { flex-wrap: wrap; gap: 16px; }
+  .coop-page { padding: 32px 16px; }
+  .coop-page .play-layout { grid-template-columns: minmax(0, 1fr); }
+}

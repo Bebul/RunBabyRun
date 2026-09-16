@@ -6,6 +6,7 @@ import { renderPlay } from './pages/play.js';
 import { renderPractice } from './pages/practice.js';
 import { renderScores } from './pages/scores.js';
 import { renderHelp } from './pages/help.js';
+import { renderMultiplayer } from './pages/multiplayer.js';
 
 const app = document.querySelector('#app');
 
@@ -14,6 +15,7 @@ app.innerHTML = `
     <a class="brand" href="#/">RUN BABY RUN</a>
     <nav aria-label="Hlavní navigace">
       <a href="#/play">Hrát</a>
+      <a href="#/multiplayer">Ve dvou</a>
       <a href="#/gallery">Galerie</a>
       <a href="#/diagnostics">Diagnostika</a>
     </nav>
@@ -23,22 +25,31 @@ app.innerHTML = `
 
 const route = app.querySelector('#route');
 let disposeRoute;
+let routeGeneration = 0;
 
 async function renderRoute() {
+  const generation = ++routeGeneration;
   disposeRoute?.();
   disposeRoute = undefined;
+  const mount = document.createElement('div');
+  route.replaceChildren(mount);
+  let dispose;
   const path = location.hash.slice(1) || '/';
   try {
-    if (path === '/gallery') await renderGallery(route);
-    else if (path === '/diagnostics') disposeRoute = await renderDiagnostics(route);
-    else if (path === '/play') disposeRoute = await renderPlay(route);
-    else if (path === '/practice') await renderPractice(route);
-    else if (/^\/practice\/\d+$/.test(path)) disposeRoute = await renderPlay(route, { practice: true, zoneNumber: Number(path.split('/').at(-1)) });
-    else if (path === '/scores') renderScores(route);
-    else if (path === '/help') renderHelp(route);
-    else renderHome(route);
+    if (path === '/gallery') await renderGallery(mount);
+    else if (path === '/diagnostics') dispose = await renderDiagnostics(mount);
+    else if (path === '/play') dispose = await renderPlay(mount);
+    else if (path.split('?')[0] === '/multiplayer') dispose = await renderMultiplayer(mount, new URLSearchParams(path.split('?')[1]).get('room'));
+    else if (path === '/practice') await renderPractice(mount);
+    else if (/^\/practice\/\d+$/.test(path)) dispose = await renderPlay(mount, { practice: true, zoneNumber: Number(path.split('/').at(-1)) });
+    else if (path === '/scores') renderScores(mount);
+    else if (path === '/help') renderHelp(mount);
+    else renderHome(mount);
+    if (generation === routeGeneration) disposeRoute = dispose;
+    else dispose?.();
   } catch (error) {
-    route.innerHTML = `<section class="error"><h1>Data se nepodařilo načíst</h1><pre>${error.message}</pre></section>`;
+    mount.innerHTML = '<section class="error"><h1>Data se nepodařilo načíst</h1><pre></pre></section>';
+    mount.querySelector('pre').textContent = error.message;
   }
 }
 

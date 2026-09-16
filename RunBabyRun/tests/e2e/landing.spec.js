@@ -211,30 +211,42 @@ test('high scores survive a reload', async ({ page }) => {
 
 test('turns entered before a zone starts do not leak into its run', async ({ page, context }) => {
   const baseline = await context.newPage();
+  const advance = async (target, milliseconds) => {
+    for (let elapsed = 0; elapsed < milliseconds; elapsed += 50) {
+      await target.clock.runFor(50);
+      await target.evaluate(() => window.testGameFrame(performance.now()));
+    }
+  };
   const frame = async (target, staleInput) => {
-    await target.clock.install();
+    await target.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+    await target.addInitScript(() => {
+      window.requestAnimationFrame = (callback) => { window.testGameFrame = callback; return 1; };
+      window.cancelAnimationFrame = () => {};
+    });
     await target.goto('/#/play');
     await expect(target.locator('#game-canvas')).toHaveAttribute('data-mode', 'ready');
+    // Compare the same simulation duration, excluding real time spent on keyboard/assertion calls.
+    await target.clock.pauseAt(new Date('2026-01-01T00:00:10Z'));
     await target.keyboard.press('s');
     for (let i = 0; i < 200; i += 1) {
-      await target.clock.runFor(100);
+      await advance(target, 100);
       if (await target.locator('#game-canvas').getAttribute('data-mode') === 'crashed') break;
     }
     await expect(target.locator('#game-canvas')).toHaveAttribute('data-mode', 'crashed');
     if (staleInput) await target.keyboard.down('x');
-    await target.clock.runFor(1000);
+    await advance(target, 1000);
     await expect(target.locator('#game-canvas')).toHaveAttribute('data-zone', '2');
     if (staleInput) await target.keyboard.press('z');
     await target.keyboard.press('s');
     if (staleInput) await target.keyboard.down('x'); // Auto-repeat of the held key.
-    await target.clock.runFor(500);
+    await advance(target, 500);
     return target.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL());
   };
   expect(await frame(page, true)).toBe(await frame(baseline, false));
   await page.keyboard.up('x');
   await page.keyboard.press('x');
-  await page.clock.runFor(500);
-  await baseline.clock.runFor(500);
+  await advance(page, 500);
+  await advance(baseline, 500);
   expect(await page.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL()))
     .not.toBe(await baseline.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL()));
   await baseline.close();

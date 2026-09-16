@@ -15,6 +15,7 @@ export function renderHome(app) {
         </form>
         <div class="menu-actions">
           <a class="button primary" href="#/play">Spustit kampaň</a>
+          <a class="button" href="#/multiplayer">Kampaň ve dvou</a>
           <a class="button" href="#/practice">Trénink</a>
           <a class="button" href="#/scores">Rekordy</a>
           <a class="button" href="#/help">Jak se hraje</a>
