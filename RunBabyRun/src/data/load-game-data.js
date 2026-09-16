@@ -13,9 +13,30 @@ export async function loadGameData() {
       zones: zoneData.zones,
       palette: spriteData.palette,
       atlas,
+      wreckAtlas: createWreckAtlas(atlas, spriteData.palette[7]),
     }));
   }
   return cache;
+}
+
+function createWreckAtlas(atlas, gray) {
+  const canvas = document.createElement('canvas');
+  canvas.width = atlas.width;
+  canvas.height = atlas.height;
+  const context = canvas.getContext('2d');
+  context.drawImage(atlas, 0, 0);
+  const image = context.getImageData(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < image.data.length; i += 4) {
+    // DOS putobdel2/invert*2 replace nonzero colors with palette index 7.
+    // Keep black pixels and alpha intact to preserve the original silhouette.
+    if (image.data[i] || image.data[i + 1] || image.data[i + 2]) {
+      image.data[i] = gray[0];
+      image.data[i + 1] = gray[1];
+      image.data[i + 2] = gray[2];
+    }
+  }
+  context.putImageData(image, 0, 0);
+  return canvas;
 }
 
 function checkResponse(response) {

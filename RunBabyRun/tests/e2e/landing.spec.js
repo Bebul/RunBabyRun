@@ -1,4 +1,54 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+test('wrecks preserve every opponent silhouette in all four directions', async ({ page }) => {
+  for (const modulePath of ['data/load-game-data.js', 'render/game-renderer.js']) {
+    const body = await readFile(new URL(`../../src/${modulePath}`, import.meta.url), 'utf8');
+    await page.route(`**/src/${modulePath}`, (route) => route.fulfill({ contentType: 'text/javascript', body }));
+  }
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const { loadGameData } = await import('/src/data/load-game-data.js');
+    const { drawGame, drawSprite } = await import('/src/render/game-renderer.js');
+    const data = await loadGameData();
+    const makeContext = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 200;
+      return canvas.getContext('2d');
+    };
+    const actual = makeContext();
+    const reference = makeContext();
+    let checked = 0;
+    for (const spriteId of new Set(data.zones.flatMap((zone) => zone.enemySpriteIds))) {
+      for (const direction of ['up', 'down', 'left', 'right']) {
+        const horizontal = ['left', 'right'].includes(direction);
+        const width = horizontal ? 16 : 8;
+        const height = horizontal ? 8 : 16;
+        reference.clearRect(0, 0, 320, 200);
+        drawSprite(reference, data, spriteId, 80, 80, direction);
+        drawGame(actual, data, {
+          mode: 'running', lives: 0, zoneNumber: 1,
+          maze: { width: 0, height: 0, rows: [] }, zone: {},
+          player: { renderPosition: { x: 0, y: 0 }, direction: 'up' },
+          enemies: [{ spriteId, crashed: true, direction, renderPosition: { x: 80, y: 80 } }],
+        });
+        const source = reference.getImageData(80, 80, width, height).data;
+        const wreck = actual.getImageData(80, 80, width, height).data;
+        for (let i = 0; i < source.length; i += 4) {
+          const color = source[i] || source[i + 1] || source[i + 2] ? data.palette[7] : [0, 0, 0];
+          if (color.some((value, channel) => wreck[i + channel] !== value) || wreck[i + 3] !== source[i + 3]) {
+            return { error: `${spriteId} ${direction} pixel ${i / 4}` };
+          }
+        }
+        checked += 1;
+      }
+    }
+    return { checked };
+  });
+  expect(result.error).toBeUndefined();
+  expect(result.checked).toBeGreaterThanOrEqual(32);
+});
 
 test('shows the stage-one status', async ({ page }) => {
   await page.goto('/');

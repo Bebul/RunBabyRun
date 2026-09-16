@@ -17,7 +17,7 @@ export function mazeById(data, id) {
   return data.mazes.find((maze) => maze.id === id);
 }
 
-export function drawSprite(context, data, spriteId, x, y, transform = 'none') {
+export function drawSprite(context, data, spriteId, x, y, transform = 'none', sourceAtlas = data.atlas) {
   const sprite = spriteById(data, spriteId);
   if (!sprite) return;
   const { atlas } = sprite;
@@ -34,7 +34,7 @@ export function drawSprite(context, data, spriteId, x, y, transform = 'none') {
     context.translate(0, sprite.width);
     context.rotate(-Math.PI / 2);
   }
-  context.drawImage(data.atlas, atlas.x, atlas.y, atlas.width, atlas.height, 0, 0, sprite.width, sprite.height);
+  context.drawImage(sourceAtlas, atlas.x, atlas.y, atlas.width, atlas.height, 0, 0, sprite.width, sprite.height);
   context.restore();
 }
 
@@ -94,19 +94,11 @@ function drawBitmapNumber(context, value, x, y) {
 
 function drawVehicleSprite(context, data, entity, spriteId, wreck) {
   const displayDirection = entity.displayDirection ?? entity.direction;
-  const horizontal = displayDirection === 'left' || displayDirection === 'right';
   // Only the simulation knows whether this microtick moves, turns or waits.
   // Never extrapolate from microStep: that draws stopped cars inside walls.
   const x = entity.renderPosition?.x ?? Math.min(entity.head.x, entity.tail.x) * 8;
   const y = entity.renderPosition?.y ?? Math.min(entity.head.y, entity.tail.y) * 8;
-  if (wreck) {
-    context.fillStyle = COLORS.wreck;
-    context.fillRect(x + 1, y + 1, horizontal ? 14 : 6, horizontal ? 6 : 14);
-    context.fillStyle = '#555555';
-    context.fillRect(x + 4, y + 3, horizontal ? 8 : 2, horizontal ? 2 : 8);
-  } else {
-    drawSprite(context, data, spriteId, x, y, displayDirection);
-  }
+  drawSprite(context, data, spriteId, x, y, displayDirection, wreck ? data.wreckAtlas : data.atlas);
 }
 
 const PIXEL_GLYPHS = {
