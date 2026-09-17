@@ -17,7 +17,7 @@ Soubory v `public/generated` jsou generované. Neupravují se ručně.
 
 ### Kampaň ve dvou
 
-Hráč 1 otevře **Kampaň ve dvou**, pošle odkaz nebo ukáže QR kód. Hráč 2 odkaz jen otevře; hráč 1 spustí společný odpočet. Oba mohou používat klávesnici nebo dotykové tlačítko. Hráč 1 spouští i každou další zónu, hráč 2 nic nepotvrzuje. Při skrytí stránky se hra pozastaví, při odpojení je nutná nová dvojice. Sólo rekordy se nemění.
+Hráč 1 otevře **Kampaň ve dvou**, pošle odkaz nebo ukáže QR kód. Na mobilu tlačítko **Poslat pozvánku** otevře systémové sdílení, kde lze vybrat WhatsApp; krátké přepnutí do jiné aplikace pozvánku neruší. Hráč 2 odkaz jen otevře; hráč 1 spustí společný odpočet. Oba mohou používat klávesnici nebo dotykové tlačítko. Hráč 1 spouští i každou další zónu, hráč 2 nic nepotvrzuje. Při skrytí stránky se hra pozastaví, při odpojení je nutná nová dvojice. Sólo rekordy se nemění.
 
 PeerJS používá ve výchozím stavu veřejný signalizační server. Osm RTT vzorků odhadne posun monotónních hodin; vzorek s nejnižším RTT určuje čas odpočtu. Host počítá původní simulaci a posílá úplné stavy nejvýše 30× za sekundu po spolehlivém WebRTC kanálu. Klient zobrazuje přijaté stavy (má tedy síťové zpoždění); neposouvá vlastní nezávislou simulaci. Klient start automaticky technicky potvrdí, spojení hlídá heartbeat. Zvukový hovor není součástí hry.
 

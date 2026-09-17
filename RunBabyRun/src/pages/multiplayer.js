@@ -19,8 +19,8 @@ export async function renderMultiplayer(app, room) {
     <section id="invitation" hidden><h2>Pozvěte hráče 2</h2>
       <canvas id="invite-qr" aria-label="QR kód pozvánky"></canvas>
       <label>Odkaz pro spoluhráče <input id="invite-url" readonly /></label>
-      <button id="copy-invite">Kopírovat odkaz</button> <button id="share-invite">Sdílet pozvánku</button>
-      <p>QR kód naskenujte fotoaparátem telefonu. Odkaz můžete poslat třeba přes WhatsApp.</p>
+      <button id="copy-invite">Kopírovat odkaz</button> <button id="share-invite">Poslat pozvánku</button>
+      <p>QR kód naskenujte fotoaparátem telefonu. Tlačítko „Poslat pozvánku“ otevře na mobilu nabídku včetně WhatsAppu.</p>
     </section>
     <div class="play-layout"><div class="screen-column">
       <div class="screen-shell game-screen"><canvas id="coop-canvas" width="320" height="200" aria-label="Společná hra"></canvas></div>

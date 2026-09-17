@@ -6,11 +6,28 @@ export function clockSample(sent, received, remote) {
 export function createSession({ Peer, room, peerOptions = {}, onStatus, onInvite, onMessage, onReady, onClose, now = () => performance.now() }) {
   const host = !room;
   const peer = new Peer(peerOptions);
+  const visibilityDocument = globalThis.document;
+  const connectionTimeoutMs = 120000;
   let connection, closed = false, ready = false, lastSeen = now(), sampleId = 0;
   const pending = new Map(), samples = [];
-  let timeout = setTimeout(() => fail('Spojení se nepodařilo navázat. Zkontrolujte síť a otevřete novou pozvánku.'), 30000);
+  let timeout = setTimeout(() => fail('Spojení se nepodařilo navázat během dvou minut. Zkontrolujte síť a otevřete novou pozvánku.'), connectionTimeoutMs);
+  function scheduleSyncTimeout() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      if (visibilityDocument?.hidden) return scheduleSyncTimeout();
+      fail('Synchronizace spojení vypršela. Otevřete novou pozvánku.');
+    }, connectionTimeoutMs);
+  }
+  function onVisibilityChange() {
+    if (visibilityDocument?.hidden) return;
+    // Mobile browsers suspend timers in the background. Do not mistake the
+    // elapsed wall time for a disconnected player after sharing an invitation.
+    lastSeen = now();
+    if (connection && !ready) scheduleSyncTimeout();
+  }
+  visibilityDocument?.addEventListener('visibilitychange', onVisibilityChange);
   const heartbeat = setInterval(() => {
-    if (!connection?.open) return;
+    if (!connection?.open || visibilityDocument?.hidden) return;
     if (now() - lastSeen > 10000) return fail('Spojení s druhým hráčem se přerušilo. Založte novou hru.');
     send({ type: 'heartbeat' });
   }, 2000);
@@ -34,7 +51,7 @@ export function createSession({ Peer, room, peerOptions = {}, onStatus, onInvite
     if (connection || closed) { candidate.on('open', () => candidate.close()); return; }
     connection = candidate;
     clearTimeout(timeout);
-    timeout = setTimeout(() => fail('Synchronizace spojení vypršela. Otevřete novou pozvánku.'), 30000);
+    scheduleSyncTimeout();
     candidate.on('open', () => {
       lastSeen = now();
       onStatus('Spojeno. Měříme RTT a synchronizujeme hodiny…');
@@ -80,6 +97,7 @@ export function createSession({ Peer, room, peerOptions = {}, onStatus, onInvite
     closed = true;
     clearTimeout(timeout);
     clearInterval(heartbeat);
+    visibilityDocument?.removeEventListener('visibilitychange', onVisibilityChange);
     connection?.close();
     peer.destroy();
   }
