@@ -16,10 +16,18 @@ const EGA16 = [
   '#555555', '#5555ff', '#55ff55', '#55ffff', '#ff5555', '#ff55ff', '#ffff55', '#ffffff',
 ];
 
+export function rgbToHex([red, green, blue]) {
+  return `#${[red, green, blue].map((value) => value.toString(16).padStart(2, '0')).join('')}`;
+}
+
+export function hexToRgb(hex) {
+  return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
+}
+
 export function createVgaPalette() {
-  const palette = EGA16.map(hexToRgb);
+  const palette = [...EGA16];
   const fromDac = (value) => Math.round((value / 63) * 255);
-  const addDacColor = (red, green, blue) => palette.push([red, green, blue].map(fromDac));
+  const addDacColor = (red, green, blue) => palette.push(rgbToHex([red, green, blue].map(fromDac)));
 
   // BIOS mode 13h does not use a regular RGB cube. The original game changes
   // only entries 0-15, leaving the VGA BIOS palette below in entries 16-247.
@@ -44,12 +52,8 @@ export function createVgaPalette() {
     ];
     for (const color of colors) addDacColor(...color);
   }
-  while (palette.length < 256) palette.push([0, 0, 0]);
+  while (palette.length < 256) palette.push('#000000');
   return palette;
-}
-
-function hexToRgb(hex) {
-  return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
 }
 
 function sha256(buffer) {
@@ -171,7 +175,7 @@ function renderAtlas(sprites, size, palette) {
       const sx = offset % sprite.width;
       const sy = Math.floor(offset / sprite.width);
       const target = ((sprite.atlas.y + sy) * size.width + sprite.atlas.x + sx) * 4;
-      const [red, green, blue] = palette[colorIndex];
+      const [red, green, blue] = hexToRgb(palette[colorIndex]);
       png.data[target] = red;
       png.data[target + 1] = green;
       png.data[target + 2] = blue;

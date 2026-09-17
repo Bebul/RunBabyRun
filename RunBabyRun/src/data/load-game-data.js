@@ -15,10 +15,15 @@ export async function loadGameData() {
       zones: zoneData.zones,
       palette: spriteData.palette,
       atlas,
-      wreckAtlas: createWreckAtlas(atlas, spriteData.palette[7]),
+      wreckAtlas: createWreckAtlas(atlas, hexToRgb(spriteData.palette[7])),
     }));
   }
   return cache;
+}
+
+export function hexToRgb(hex) {
+  if (Array.isArray(hex)) return hex;
+  return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
 }
 
 function createWreckAtlas(atlas, gray) {

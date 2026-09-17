@@ -28,10 +28,10 @@ describe('original data extraction', () => {
   it('reproduces the BIOS mode 13h palette used by indexed sprites', () => {
     const palette = createVgaPalette();
     expect(palette).toHaveLength(256);
-    expect(palette[31]).toEqual([255, 255, 255]);
-    expect(palette[32]).toEqual([0, 0, 255]);
-    expect(palette[48]).toEqual([0, 255, 0]);
-    expect(palette[89]).toEqual([255, 198, 182]);
-    expect(palette[114]).toEqual([113, 57, 0]);
+    expect(palette[31]).toBe('#ffffff');
+    expect(palette[32]).toBe('#0000ff');
+    expect(palette[48]).toBe('#00ff00');
+    expect(palette[89]).toBe('#ffc6b6');
+    expect(palette[114]).toBe('#713900');
   });
 });

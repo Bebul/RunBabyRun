@@ -48,7 +48,7 @@ test('wrecks preserve every opponent silhouette in all four directions', async (
   }
   await page.goto('/');
   const result = await page.evaluate(async () => {
-    const { loadGameData } = await import('/src/data/load-game-data.js');
+    const { loadGameData, hexToRgb } = await import('/src/data/load-game-data.js');
     const { drawGame, drawSprite } = await import('/src/render/game-renderer.js');
     const data = await loadGameData();
     const makeContext = () => {
@@ -76,7 +76,7 @@ test('wrecks preserve every opponent silhouette in all four directions', async (
         const source = reference.getImageData(80, 80, width, height).data;
         const wreck = actual.getImageData(80, 80, width, height).data;
         for (let i = 0; i < source.length; i += 4) {
-          const color = source[i] || source[i + 1] || source[i + 2] ? data.palette[7] : [0, 0, 0];
+          const color = source[i] || source[i + 1] || source[i + 2] ? hexToRgb(data.palette[7]) : [0, 0, 0];
           if (color.some((value, channel) => wreck[i + channel] !== value) || wreck[i + 3] !== source[i + 3]) {
             return { error: `${spriteId} ${direction} pixel ${i / 4}` };
           }
