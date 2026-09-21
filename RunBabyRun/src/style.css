@@ -97,6 +97,7 @@ kbd { display: inline-block; min-width: 24px; padding: 2px 5px; color: #fff; tex
 .victory-panel h2 { margin: 5px 0 10px; color: #ffff55; font-size: 30px; }
 .game-over-panel { border-color: #ff5555; }
 .game-over-panel h2 { color: #ff5555; }
+.mobile-game-controls, .portrait-prompt { display: none; }
 
 .coop-page #invitation { padding: 20px; border: 1px solid #59638a; margin: 24px 0; }
 .coop-page #invite-qr { width: 220px; height: 220px; max-width: 100%; display: block; margin-bottom: 16px; }
@@ -112,4 +113,33 @@ button:disabled { opacity: .45; cursor: default; }
   body:has(.coop-page) nav { flex-wrap: wrap; gap: 16px; }
   .coop-page { padding: 32px 16px; }
   .coop-page .play-layout { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (any-pointer: coarse) and (max-width: 1366px) and (max-height: 1024px) {
+  body.mobile-game-active { min-width: 0; width: 100dvw; height: 100dvh; min-height: 0; overflow: hidden; overscroll-behavior: none; background: #000; }
+  body.mobile-game-active .site-header { display: none; }
+  body.mobile-game-active #app, body.mobile-game-active #route, body.mobile-game-active #route > div { width: 100%; height: 100%; overflow: hidden; }
+  .play-page { position: fixed; inset: 0; z-index: 1000; width: 100dvw; height: 100dvh; max-width: none; margin: 0; padding: 0; overflow: hidden; background: #000; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .play-page .play-heading, .play-page .display-controls, .play-page .game-help, .play-page .victory-panel { display: none; }
+  .play-page .play-layout, .play-page .screen-column { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; display: grid; place-items: center; }
+  .play-page .game-screen { width: min(100dvw, 160dvh); height: min(62.5dvw, 100dvh); max-width: none; padding: 0; border: 0; box-shadow: none; background: #000; }
+  .mobile-game-controls { position: absolute; inset: 0; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; touch-action: none; }
+  .touch-turn { position: relative; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; touch-action: none; -webkit-tap-highlight-color: transparent; }
+  .touch-turn:hover { border: 0; }
+  .touch-turn:disabled { opacity: 1; cursor: default; }
+  .touch-turn span { position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); color: #fff; font: 700 clamp(44px, 10dvh, 76px)/1 sans-serif; opacity: .2; text-shadow: 0 2px 8px #000; }
+  .touch-turn-left span { left: max(22px, env(safe-area-inset-left)); }
+  .touch-turn-right span { right: max(22px, env(safe-area-inset-right)); }
+  .play-page:not([data-mode="running"]) .touch-turn span { opacity: 0; }
+  .touch-turn:active span { color: #55ffff; opacity: .7; }
+  .mobile-start { position: absolute; z-index: 3; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); translate: -50% 0; min-width: min(220px, 42dvw); min-height: 54px; border: 2px solid #55ffff; color: #07101c; background: #55ffff; font-weight: 900; letter-spacing: .12em; box-shadow: 0 4px 24px #000; }
+  .mobile-start[hidden] { display: none; }
+  .mobile-menu { position: absolute; z-index: 4; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); padding: 8px 12px; border-color: #aeb9ef; background: #070914cc; font-size: 12px; }
+  .portrait-prompt { position: absolute; inset: 0; z-index: 6; place-items: center; align-content: center; gap: 10px; padding: 28px; color: #fff; text-align: center; background: #070914; }
+  .portrait-prompt strong { color: #ffff55; font-size: clamp(28px, 8vw, 48px); }
+  .portrait-prompt span { color: #bec5df; }
+}
+
+@media (any-pointer: coarse) and (max-width: 1366px) and (max-height: 1024px) and (orientation: portrait) {
+  .portrait-prompt { display: grid; }
 }

@@ -36,12 +36,21 @@ export async function renderPlay(app, options = {}) {
           <dl class="metadata" id="game-status"></dl>
         </aside>
       </div>
+      <div class="mobile-game-controls" aria-label="Dotykové ovládání hry">
+        <button class="touch-turn touch-turn-left" type="button" data-touch-turn="left" aria-label="Zatočit vlevo"><span aria-hidden="true">&#8592;</span></button>
+        <button class="touch-turn touch-turn-right" type="button" data-touch-turn="right" aria-label="Zatočit vpravo"><span aria-hidden="true">&#8594;</span></button>
+        <button class="mobile-start" id="mobile-start" type="button">START</button>
+        <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Ukončit hru a vrátit se do menu">Menu</button>
+      </div>
+      <div class="portrait-prompt" role="status"><strong>Otočte telefon</strong><span>Hra se ovládá na šířku.</span></div>
       <section class="victory-panel" id="victory-panel" hidden><p class="eyebrow">Všech 42 zón dokončeno</p><h2>Vyhráli jste!</h2><p>Výsledek byl uložen. Můžete skončit, nebo pokračovat dalším kolem od první zóny.</p><button id="continue-campaign">Pokračovat</button> <a class="button" href="#/">Do menu</a></section>
       <section class="victory-panel game-over-panel" id="game-over-panel" hidden><p class="eyebrow">Jízda skončila</p><h2>Konec hry</h2><p>Výsledek je uložený v místní tabulce rekordů.</p><a class="button primary" href="#/play">Nová hra</a> <a class="button" href="#/scores">Rekordy</a> <a class="button" href="#/">Do menu</a></section>
     </section>`;
 
   const canvas = app.querySelector('#game-canvas');
+  const playPage = app.querySelector('.play-page');
   const context = canvas.getContext('2d');
+  const mobileQuery = matchMedia('(any-pointer: coarse) and (max-width: 1366px) and (max-height: 1024px)');
   const music = new BachMusic(undefined, (track) => {
     const label = app.querySelector('#current-music');
     if (label) label.textContent = `J. S. Bach — ${track.title}`;
@@ -56,6 +65,7 @@ export async function renderPlay(app, options = {}) {
   let scoreSaved = false;
   let pendingInput = {};
   const heldTurnKeys = new Map();
+  const heldTouchTurns = new Map();
   const blockedTurnKeys = new Set();
   let accumulator = 0;
   let previousTime = performance.now();
@@ -63,17 +73,24 @@ export async function renderPlay(app, options = {}) {
   let animationFrame;
   let disposed = false;
 
+  function updateMobileMode() {
+    document.body.classList.toggle('mobile-game-active', mobileQuery.matches);
+  }
+
   function tick(now) {
     const elapsed = Math.min(100, now - previousTime);
     previousTime = now;
     if (!document.hidden && !transitionAt) {
       const interval = tickInterval(state);
-      const heldKey = [...heldTurnKeys.keys()].filter((key) => !blockedTurnKeys.has(key)).at(-1);
-      const repeatTurn = heldKey && now - heldTurnKeys.get(heldKey) >= TURN_HOLD_DELAY_MS;
+      const heldTurns = [
+        ...[...heldTurnKeys].filter(([key]) => !blockedTurnKeys.has(key)).map(([key, startedAt]) => ({ turn: TURN_KEYS[key], startedAt })),
+        ...heldTouchTurns.values(),
+      ].filter(({ startedAt }) => now - startedAt >= TURN_HOLD_DELAY_MS).sort((a, b) => a.startedAt - b.startedAt);
+      const repeatTurn = heldTurns.at(-1)?.turn;
       const previousState = state;
       ({ state, accumulator, pendingInput } = advanceSimulation(
         state,
-        { accumulator, elapsed, interval, pendingInput, heldInput: repeatTurn ? { turn: TURN_KEYS[heldKey] } : {} },
+        { accumulator, elapsed, interval, pendingInput, heldInput: repeatTurn ? { turn: repeatTurn } : {} },
         step,
       ));
       crashSounds.playTransition(previousState, state);
@@ -114,6 +131,10 @@ export async function renderPlay(app, options = {}) {
   function updateStatus() {
     canvas.dataset.mode = state.mode;
     canvas.dataset.zone = state.zoneNumber;
+    playPage.dataset.mode = state.mode;
+    const running = state.mode === 'running' && !transitionAt;
+    app.querySelector('#mobile-start').hidden = state.mode !== 'ready';
+    app.querySelectorAll('[data-touch-turn]').forEach((button) => { button.disabled = !running; });
     app.querySelector('#game-status').innerHTML = `
       <div><dt>Stav</dt><dd>${state.mode}</dd></div>
       <div><dt>Zóna</dt><dd>${state.zoneNumber} / 42</dd></div>
@@ -142,17 +163,15 @@ export async function renderPlay(app, options = {}) {
       if (state.mode !== 'running') blockedTurnKeys.add(key);
       else if (!blockedTurnKeys.has(key)) pendingInput.turn = turn;
     }
-    if (['s', 'enter'].includes(key) && state.mode === 'ready') {
-      resetInput();
-      previousTime = performance.now();
-      state = step(state, { start: true });
-    }
+    if (['s', 'enter'].includes(key)) startGame();
     if (['r', 'escape'].includes(key)) location.hash = '/';
   }
 
   function resetInput() {
     pendingInput = {};
     accumulator = 0;
+    heldTouchTurns.clear();
+    playPage.dataset.touchHeld = '0';
     heldTurnKeys.forEach((_, key) => blockedTurnKeys.add(key));
   }
 
@@ -167,6 +186,42 @@ export async function renderPlay(app, options = {}) {
     heldTurnKeys.clear();
     blockedTurnKeys.clear();
     state.pendingTurn = null;
+  }
+
+  function requestMobileFullscreen() {
+    if (!mobileQuery.matches) return;
+    let fullscreenRequest;
+    try {
+      fullscreenRequest = playPage.requestFullscreen?.({ navigationUI: 'hide' });
+    } catch {
+      return;
+    }
+    Promise.resolve(fullscreenRequest).then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+  }
+
+  function startGame() {
+    if (state.mode !== 'ready') return;
+    requestMobileFullscreen();
+    resetInput();
+    previousTime = performance.now();
+    state = step(state, { start: true });
+    if (musicEnabled) music.setEnabled(true).catch(() => {});
+  }
+
+  function onTouchTurnDown(event) {
+    if (state.mode !== 'running' || transitionAt) return;
+    event.preventDefault();
+    const button = event.currentTarget;
+    try { button.setPointerCapture?.(event.pointerId); } catch { /* Synthetic and interrupted pointers may not be capturable. */ }
+    const turn = button.dataset.touchTurn;
+    heldTouchTurns.set(event.pointerId, { turn, startedAt: performance.now() });
+    playPage.dataset.touchHeld = String(heldTouchTurns.size);
+    pendingInput.turn = turn;
+  }
+
+  function onTouchTurnUp(event) {
+    heldTouchTurns.delete(event.pointerId);
+    playPage.dataset.touchHeld = String(heldTouchTurns.size);
   }
 
   function onVisibilityChange() {
@@ -207,6 +262,20 @@ export async function renderPlay(app, options = {}) {
   }));
   app.querySelector('#toggle-music').addEventListener('click', toggleMusic);
   app.querySelector('#toggle-sound-effects').addEventListener('click', toggleSoundEffects);
+  app.querySelector('#mobile-start').addEventListener('click', startGame);
+  app.querySelector('#mobile-menu').addEventListener('click', () => {
+    if (document.fullscreenElement === playPage) document.exitFullscreen?.().catch(() => {});
+    location.hash = '/';
+  });
+  app.querySelectorAll('[data-touch-turn]').forEach((button) => {
+    button.addEventListener('pointerdown', onTouchTurnDown);
+    button.addEventListener('pointerup', onTouchTurnUp);
+    button.addEventListener('pointercancel', onTouchTurnUp);
+    button.addEventListener('lostpointercapture', onTouchTurnUp);
+  });
+  mobileQuery.addEventListener?.('change', updateMobileMode);
+  updateMobileMode();
+  playPage.dataset.touchHeld = '0';
   updateMusicButton();
   updateSoundEffectsButton();
   if (musicEnabled) music.setEnabled(true).catch(() => {});
@@ -232,6 +301,10 @@ export async function renderPlay(app, options = {}) {
     window.removeEventListener('keyup', onKeyup);
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('visibilitychange', onVisibilityChange);
+    mobileQuery.removeEventListener?.('change', updateMobileMode);
+    document.body.classList.remove('mobile-game-active');
+    if (document.fullscreenElement === playPage) document.exitFullscreen?.().catch(() => {});
+    try { screen.orientation?.unlock?.(); } catch { /* Orientation locking is optional. */ }
     music.dispose();
     crashSounds.dispose();
   };

@@ -251,3 +251,129 @@ test('turns entered before a zone starts do not leak into its run', async ({ pag
     .not.toBe(await baseline.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL()));
   await baseline.close();
 });
+
+test.describe('mobile solo controls', () => {
+  const landscapeSizes = [{ width: 844, height: 390 }, { width: 667, height: 375 }];
+
+  for (const viewport of landscapeSizes) {
+    test(`fills a ${viewport.width}x${viewport.height} landscape viewport without scrolling`, async ({ browser }) => {
+      const context = await browser.newContext({ viewport, hasTouch: true });
+      const page = await context.newPage();
+      await page.goto('/#/play');
+      await expect(page.locator('#mobile-start')).toBeVisible();
+      await expect(page.locator('#mobile-menu')).toBeVisible();
+      const layout = await page.evaluate(() => {
+        const canvas = document.querySelector('#game-canvas').getBoundingClientRect();
+        return {
+          body: [document.body.scrollWidth, document.body.scrollHeight],
+          viewport: [innerWidth, innerHeight],
+          canvas: { left: canvas.left, top: canvas.top, right: canvas.right, bottom: canvas.bottom, ratio: canvas.width / canvas.height },
+        };
+      });
+      expect(layout.body[0]).toBeLessThanOrEqual(layout.viewport[0]);
+      expect(layout.body[1]).toBeLessThanOrEqual(layout.viewport[1]);
+      expect(layout.canvas.left).toBeGreaterThanOrEqual(0);
+      expect(layout.canvas.top).toBeGreaterThanOrEqual(0);
+      expect(layout.canvas.right).toBeLessThanOrEqual(layout.viewport[0]);
+      expect(layout.canvas.bottom).toBeLessThanOrEqual(layout.viewport[1]);
+      expect(layout.canvas.ratio).toBeCloseTo(1.6, 2);
+      await context.close();
+    });
+  }
+
+  test('starts without Fullscreen API and asks for fullscreen when available', async ({ browser }) => {
+    const fallback = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const fallbackPage = await fallback.newPage();
+    await fallbackPage.addInitScript(() => { Object.defineProperty(Element.prototype, 'requestFullscreen', { configurable: true, value: undefined }); });
+    await fallbackPage.goto('/#/play');
+    await fallbackPage.locator('#mobile-start').tap();
+    await expect(fallbackPage.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
+    await fallback.close();
+
+    const supported = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const supportedPage = await supported.newPage();
+    await supportedPage.addInitScript(() => {
+      window.fullscreenRequests = 0;
+      Object.defineProperty(Element.prototype, 'requestFullscreen', { configurable: true, value() { window.fullscreenRequests += 1; return Promise.resolve(); } });
+    });
+    await supportedPage.goto('/#/play');
+    await supportedPage.locator('#mobile-start').tap();
+    await expect(supportedPage.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
+    await expect.poll(() => supportedPage.evaluate(() => window.fullscreenRequests)).toBe(1);
+    await supported.close();
+  });
+
+  test('shows an orientation prompt in portrait', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+    const page = await context.newPage();
+    await page.goto('/#/practice/1');
+    await expect(page.getByText('Otočte telefon')).toBeVisible();
+    await expect(page.getByText('Hra se ovládá na šířku.')).toBeVisible();
+    await context.close();
+  });
+
+  test('touch halves match keyboard turns, repeat while held, and stop on cancel', async ({ browser }) => {
+    const touchContext = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const keyboardContext = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const touch = await touchContext.newPage();
+    const keyboard = await keyboardContext.newPage();
+    const prepare = async (target) => {
+      await target.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+      await target.addInitScript(() => {
+        window.requestAnimationFrame = (callback) => { window.testGameFrame = callback; return 1; };
+        window.cancelAnimationFrame = () => {};
+        Object.defineProperty(Element.prototype, 'requestFullscreen', { configurable: true, value: undefined });
+      });
+      await target.goto('/#/practice/8');
+      await target.clock.pauseAt(new Date('2026-01-01T00:00:10Z'));
+      await target.locator('#mobile-start').tap();
+    };
+    const advance = async (target, milliseconds) => {
+      for (let elapsed = 0; elapsed < milliseconds; elapsed += 10) {
+        await target.clock.runFor(10);
+        await target.evaluate(() => window.testGameFrame(performance.now()));
+      }
+    };
+    const pixels = (target) => target.locator('#game-canvas').evaluate((canvas) => canvas.toDataURL());
+    await prepare(touch);
+    await prepare(keyboard);
+    await advance(touch, 200);
+    await advance(keyboard, 200);
+
+    await touch.locator('[data-touch-turn="left"]').tap({ position: { x: 60, y: 190 } });
+    await keyboard.keyboard.press('z');
+    await advance(touch, 250);
+    await advance(keyboard, 250);
+    expect(await pixels(touch)).toBe(await pixels(keyboard));
+
+    await touch.locator('[data-touch-turn="right"]').tap({ position: { x: 300, y: 190 } });
+    await keyboard.keyboard.press('x');
+    await advance(touch, 250);
+    await advance(keyboard, 250);
+    expect(await pixels(touch)).toBe(await pixels(keyboard));
+
+    await touch.locator('[data-touch-turn="left"]').dispatchEvent('pointerdown', { pointerId: 41, pointerType: 'touch' });
+    await expect(touch.locator('.play-page')).toHaveAttribute('data-touch-held', '1');
+    await keyboard.keyboard.press('z');
+    await advance(touch, 400);
+    await advance(keyboard, 400);
+    expect(await pixels(touch)).not.toBe(await pixels(keyboard));
+    await touch.locator('[data-touch-turn="left"]').dispatchEvent('pointercancel', { pointerId: 41, pointerType: 'touch' });
+    await expect(touch.locator('.play-page')).toHaveAttribute('data-touch-held', '0');
+    await touchContext.close();
+    await keyboardContext.close();
+  });
+
+  test('ignores touch turns before start', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const page = await context.newPage();
+    await page.addInitScript(() => { Object.defineProperty(Element.prototype, 'requestFullscreen', { configurable: true, value: undefined }); });
+    await page.goto('/#/practice/8');
+    await page.locator('[data-touch-turn="left"]').dispatchEvent('pointerdown', { pointerId: 7, pointerType: 'touch' });
+    await expect(page.locator('.play-page')).toHaveAttribute('data-touch-held', '0');
+    await page.locator('#mobile-start').tap();
+    await expect(page.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
+    await expect(page.locator('.play-page')).toHaveAttribute('data-touch-held', '0');
+    await context.close();
+  });
+});
