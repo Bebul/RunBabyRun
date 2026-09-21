@@ -267,7 +267,11 @@ test.describe('mobile solo controls', () => {
         return {
           body: [document.body.scrollWidth, document.body.scrollHeight],
           viewport: [innerWidth, innerHeight],
-          canvas: { left: canvas.left, top: canvas.top, right: canvas.right, bottom: canvas.bottom, ratio: canvas.width / canvas.height },
+          canvas: {
+            left: canvas.left, top: canvas.top, right: canvas.right, bottom: canvas.bottom,
+            intrinsicRatio: document.querySelector('#game-canvas').width / document.querySelector('#game-canvas').height,
+            objectFit: getComputedStyle(document.querySelector('#game-canvas')).objectFit,
+          },
         };
       });
       expect(layout.body[0]).toBeLessThanOrEqual(layout.viewport[0]);
@@ -276,7 +280,8 @@ test.describe('mobile solo controls', () => {
       expect(layout.canvas.top).toBeGreaterThanOrEqual(0);
       expect(layout.canvas.right).toBeLessThanOrEqual(layout.viewport[0]);
       expect(layout.canvas.bottom).toBeLessThanOrEqual(layout.viewport[1]);
-      expect(layout.canvas.ratio).toBeCloseTo(1.6, 2);
+      expect(layout.canvas.intrinsicRatio).toBeCloseTo(1.6, 2);
+      expect(layout.canvas.objectFit).toBe('contain');
       await context.close();
     });
   }
@@ -301,6 +306,46 @@ test.describe('mobile solo controls', () => {
     await expect(supportedPage.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
     await expect.poll(() => supportedPage.evaluate(() => window.fullscreenRequests)).toBe(1);
     await supported.close();
+  });
+
+  test('keeps zone three contained after fullscreen and viewport changes', async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      window.fullscreenRequests = 0;
+      window.fakeFullscreenElement = null;
+      Object.defineProperty(Document.prototype, 'fullscreenElement', { configurable: true, get() { return window.fakeFullscreenElement; } });
+      Object.defineProperty(Element.prototype, 'requestFullscreen', { configurable: true, value() {
+        window.fullscreenRequests += 1;
+        window.fakeFullscreenElement = this;
+        return Promise.resolve();
+      } });
+      Object.defineProperty(Document.prototype, 'exitFullscreen', { configurable: true, value() {
+        window.fakeFullscreenElement = null;
+        return Promise.resolve();
+      } });
+    });
+    await page.goto('/#/practice/3');
+    await page.locator('#mobile-start').tap();
+    await expect(page.locator('#game-canvas')).toHaveAttribute('data-zone', '3');
+    await expect(page.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
+    await page.setViewportSize({ width: 780, height: 360 });
+    const layout = await page.evaluate(() => {
+      const canvas = document.querySelector('#game-canvas');
+      const bounds = canvas.getBoundingClientRect();
+      return {
+        requests: window.fullscreenRequests,
+        overflow: [document.body.scrollWidth - innerWidth, document.body.scrollHeight - innerHeight],
+        bounds: [bounds.left, bounds.top, bounds.right, bounds.bottom],
+        viewport: [innerWidth, innerHeight],
+        objectFit: getComputedStyle(canvas).objectFit,
+      };
+    });
+    expect(layout.requests).toBe(1);
+    expect(layout.overflow).toEqual([0, 0]);
+    expect(layout.bounds).toEqual([0, 0, layout.viewport[0], layout.viewport[1]]);
+    expect(layout.objectFit).toBe('contain');
+    await context.close();
   });
 
   test('shows an orientation prompt in portrait', async ({ browser }) => {

@@ -190,13 +190,18 @@ export async function renderPlay(app, options = {}) {
 
   function requestMobileFullscreen() {
     if (!mobileQuery.matches) return;
+    const lockLandscape = () => Promise.resolve(screen.orientation?.lock?.('landscape')).catch(() => {});
+    if (document.fullscreenElement === playPage) {
+      lockLandscape();
+      return;
+    }
     let fullscreenRequest;
     try {
       fullscreenRequest = playPage.requestFullscreen?.({ navigationUI: 'hide' });
     } catch {
       return;
     }
-    Promise.resolve(fullscreenRequest).then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+    Promise.resolve(fullscreenRequest).then(lockLandscape).catch(() => {});
   }
 
   function startGame() {
