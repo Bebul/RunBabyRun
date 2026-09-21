@@ -119,8 +119,8 @@ button:disabled { opacity: .45; cursor: default; }
   body.mobile-game-active { min-width: 0; width: 100%; height: 100dvh; min-height: 0; overflow: hidden; overscroll-behavior: none; background: #000; }
   body.mobile-game-active .site-header { display: none; }
   body.mobile-game-active #app, body.mobile-game-active #route, body.mobile-game-active #route > div { width: 100%; height: 100%; overflow: hidden; }
-  .play-page { position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; max-width: none; margin: 0; padding: 0; overflow: hidden; background: #000; touch-action: none; user-select: none; -webkit-user-select: none; }
-  .play-page:fullscreen, .play-page:-webkit-full-screen { width: 100%; height: 100%; }
+  .play-page { position: fixed; inset: auto; left: var(--game-viewport-left, 0); top: var(--game-viewport-top, 0); z-index: 1000; width: var(--game-viewport-width, 100%); height: var(--game-viewport-height, 100%); max-width: none; margin: 0; padding: 0; overflow: hidden; background: #000; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .play-page:fullscreen, .play-page:-webkit-full-screen { left: var(--game-viewport-left, 0); top: var(--game-viewport-top, 0); width: var(--game-viewport-width, 100%); height: var(--game-viewport-height, 100%); }
   .play-page .play-heading, .play-page .display-controls, .play-page .game-help, .play-page .victory-panel { display: none; }
   .play-page .play-layout, .play-page .screen-column { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; display: grid; place-items: center; }
   .play-page .game-screen { width: 100%; height: 100%; min-width: 0; min-height: 0; max-width: none; padding: 0; overflow: hidden; aspect-ratio: auto; border: 0; box-shadow: none; background: #000; }

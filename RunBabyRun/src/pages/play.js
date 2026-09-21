@@ -73,8 +73,18 @@ export async function renderPlay(app, options = {}) {
   let animationFrame;
   let disposed = false;
 
+  function updateMobileViewport() {
+    if (!mobileQuery.matches) return;
+    const viewport = window.visualViewport;
+    playPage.style.setProperty('--game-viewport-left', `${viewport?.offsetLeft ?? 0}px`);
+    playPage.style.setProperty('--game-viewport-top', `${viewport?.offsetTop ?? 0}px`);
+    playPage.style.setProperty('--game-viewport-width', `${viewport?.width ?? window.innerWidth}px`);
+    playPage.style.setProperty('--game-viewport-height', `${viewport?.height ?? window.innerHeight}px`);
+  }
+
   function updateMobileMode() {
     document.body.classList.toggle('mobile-game-active', mobileQuery.matches);
+    updateMobileViewport();
   }
 
   function tick(now) {
@@ -191,7 +201,9 @@ export async function renderPlay(app, options = {}) {
   function requestMobileFullscreen() {
     if (!mobileQuery.matches) return;
     const lockLandscape = () => Promise.resolve(screen.orientation?.lock?.('landscape')).catch(() => {});
+    const refreshViewport = () => updateMobileViewport();
     if (document.fullscreenElement === playPage) {
+      refreshViewport();
       lockLandscape();
       return;
     }
@@ -201,7 +213,10 @@ export async function renderPlay(app, options = {}) {
     } catch {
       return;
     }
-    Promise.resolve(fullscreenRequest).then(lockLandscape).catch(() => {});
+    Promise.resolve(fullscreenRequest).then(() => {
+      refreshViewport();
+      return lockLandscape();
+    }).catch(() => {});
   }
 
   function startGame() {
@@ -279,6 +294,11 @@ export async function renderPlay(app, options = {}) {
     button.addEventListener('lostpointercapture', onTouchTurnUp);
   });
   mobileQuery.addEventListener?.('change', updateMobileMode);
+  window.addEventListener('resize', updateMobileViewport);
+  window.addEventListener('orientationchange', updateMobileViewport);
+  window.visualViewport?.addEventListener('resize', updateMobileViewport);
+  window.visualViewport?.addEventListener('scroll', updateMobileViewport);
+  document.addEventListener('fullscreenchange', updateMobileViewport);
   updateMobileMode();
   playPage.dataset.touchHeld = '0';
   updateMusicButton();
@@ -307,6 +327,11 @@ export async function renderPlay(app, options = {}) {
     window.removeEventListener('blur', onBlur);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     mobileQuery.removeEventListener?.('change', updateMobileMode);
+    window.removeEventListener('resize', updateMobileViewport);
+    window.removeEventListener('orientationchange', updateMobileViewport);
+    window.visualViewport?.removeEventListener('resize', updateMobileViewport);
+    window.visualViewport?.removeEventListener('scroll', updateMobileViewport);
+    document.removeEventListener('fullscreenchange', updateMobileViewport);
     document.body.classList.remove('mobile-game-active');
     if (document.fullscreenElement === playPage) document.exitFullscreen?.().catch(() => {});
     try { screen.orientation?.unlock?.(); } catch { /* Orientation locking is optional. */ }

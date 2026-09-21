@@ -312,6 +312,16 @@ test.describe('mobile solo controls', () => {
     const context = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true });
     const page = await context.newPage();
     await page.addInitScript(() => {
+      const viewportState = { width: 844, height: 390, offsetLeft: 0, offsetTop: 0 };
+      const testVisualViewport = new EventTarget();
+      for (const key of Object.keys(viewportState)) {
+        Object.defineProperty(testVisualViewport, key, { get: () => viewportState[key] });
+      }
+      Object.defineProperty(window, 'visualViewport', { configurable: true, value: testVisualViewport });
+      window.setTestVisualViewport = (next) => {
+        Object.assign(viewportState, next);
+        testVisualViewport.dispatchEvent(new Event('resize'));
+      };
       window.fullscreenRequests = 0;
       window.fakeFullscreenElement = null;
       Object.defineProperty(Document.prototype, 'fullscreenElement', { configurable: true, get() { return window.fakeFullscreenElement; } });
@@ -329,7 +339,7 @@ test.describe('mobile solo controls', () => {
     await page.locator('#mobile-start').tap();
     await expect(page.locator('#game-canvas')).toHaveAttribute('data-zone', '3');
     await expect(page.locator('#game-canvas')).toHaveAttribute('data-mode', 'running');
-    await page.setViewportSize({ width: 780, height: 360 });
+    await page.evaluate(() => window.setTestVisualViewport({ width: 780, height: 330, offsetLeft: 8, offsetTop: 12 }));
     const layout = await page.evaluate(() => {
       const canvas = document.querySelector('#game-canvas');
       const bounds = canvas.getBoundingClientRect();
@@ -337,13 +347,14 @@ test.describe('mobile solo controls', () => {
         requests: window.fullscreenRequests,
         overflow: [document.body.scrollWidth - innerWidth, document.body.scrollHeight - innerHeight],
         bounds: [bounds.left, bounds.top, bounds.right, bounds.bottom],
-        viewport: [innerWidth, innerHeight],
+        visualViewport: [visualViewport.offsetLeft, visualViewport.offsetTop, visualViewport.width, visualViewport.height],
         objectFit: getComputedStyle(canvas).objectFit,
       };
     });
     expect(layout.requests).toBe(1);
     expect(layout.overflow).toEqual([0, 0]);
-    expect(layout.bounds).toEqual([0, 0, layout.viewport[0], layout.viewport[1]]);
+    expect(layout.visualViewport).toEqual([8, 12, 780, 330]);
+    expect(layout.bounds).toEqual([8, 12, 788, 342]);
     expect(layout.objectFit).toBe('contain');
     await context.close();
   });
